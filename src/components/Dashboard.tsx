@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sparkles, X } from "lucide-react";
+import { Cpu } from "lucide-react";
 import { ClockWidget } from "./widgets/ClockWidget";
 import { WeatherWidget } from "./widgets/WeatherWidget";
 import { SystemStatsWidget } from "./widgets/SystemStatsWidget";
@@ -18,7 +18,7 @@ import { PomodoroWidget } from "./widgets/PomodoroWidget";
 import { CalculatorWidget } from "./widgets/CalculatorWidget";
 import { HabitWidget } from "./widgets/HabitWidget";
 import { ToolsWidget } from "./widgets/ToolsWidget";
-import { LumiWidget } from "./widgets/LumiWidget";
+import { FridayWidget } from "./widgets/FridayWidget";
 import { FullScreenMenu } from "./FullScreenMenu";
 import { User } from "../App";
 
@@ -31,7 +31,7 @@ const VIEW_META: Record<string, { title: string; subtitle: string }> = {
   calculator: { title: "Calculette",       subtitle: "Calculs rapides" },
   habits:     { title: "Habitudes",        subtitle: "Suivi journalier" },
   tools:      { title: "Boîte à outils",   subtitle: "Utilitaires pratiques" },
-  lumi:       { title: "LUMI",             subtitle: "Votre IA personnelle — LuminaOS" },
+  friday:     { title: "FRIDAY",           subtitle: "Intelligence personnelle — 100% locale" },
 };
 
 const getGreeting = () => {
@@ -86,8 +86,13 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
       case "calculator": return <div className="flex justify-center"><CalculatorWidget /></div>;
       case "habits":     return <div className="flex justify-center"><HabitWidget /></div>;
       case "tools":      return <div className="flex justify-center"><ToolsWidget /></div>;
-      case "lumi":       return <LumiWidget userName={currentUser.username} />;
-      default:           return null;
+      case "friday":
+        return (
+          <div className="h-full">
+            <FridayWidget userName={currentUser.username} onNavigate={(view) => setCurrentView(view)} />
+          </div>
+        );
+      default: return null;
     }
   };
 
@@ -122,29 +127,31 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
               <h2 className="text-xl font-semibold text-white tracking-tight truncate">
                 {currentView === "dashboard"
                   ? `${getGreeting()}, ${currentUser.username}`
-                  : currentView === "lumi"
-                  ? <><span className="text-amber-400">LUMI</span></>
+                  : currentView === "friday"
+                  ? <><span className="text-amber-400">FRIDAY</span> <span className="text-gray-700 font-light text-base">— IA Personnelle</span></>
                   : meta.title}
               </h2>
               <p className="text-gray-600 text-sm mt-0.5">
                 {currentView === "dashboard"
                   ? new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })
+                  : currentView === "friday"
+                  ? "Mémoire locale · Sans API · Sans cloud"
                   : meta.subtitle}
               </p>
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* LUMI quick-access badge */}
-        {currentView !== 'lumi' && (
+        {/* FRIDAY quick-access badge */}
+        {currentView !== 'friday' && (
           <motion.button
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            onClick={() => setCurrentView('lumi')}
+            onClick={() => setCurrentView('friday')}
             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium hover:bg-amber-500/15 transition-all cursor-pointer flex-shrink-0"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            LUMI
+            <Cpu className="w-3.5 h-3.5" />
+            FRIDAY
           </motion.button>
         )}
       </motion.header>
@@ -172,13 +179,11 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
           whileTap={{ scale: 0.94 }}
           className="relative flex items-center justify-center cursor-pointer"
         >
-          {/* Pulsing glow ring */}
           <motion.div
             animate={{ scale: [1, 1.35, 1], opacity: [0.35, 0, 0.35] }}
             transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
             className="absolute w-14 h-14 rounded-full bg-rose-500/30"
           />
-          {/* Button */}
           <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center border-2 border-white/15 shadow-[0_0_30px_rgba(244,63,94,0.4)]">
             <span className="text-sm font-bold text-white tracking-tight">
               L<span className="font-light opacity-75">OS</span>

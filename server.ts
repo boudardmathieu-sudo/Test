@@ -266,52 +266,297 @@ async function startServer() {
     }
   });
 
-  // API: LUMI AI Assistant
-  app.post('/api/lumi', async (req, res) => {
-    try {
-      const { messages, context } = req.body;
-      if (!process.env.GEMINI_API_KEY) {
-        return res.json({ reply: "Clé API GEMINI_API_KEY manquante. Configurez-la dans les secrets Replit pour activer LUMI." });
+  // ═══════════════════════════════════════════════════════
+  //  FRIDAY — Personal Intelligence Engine (100% Local)
+  // ═══════════════════════════════════════════════════════
+
+  function fridayTimeOfDay(h: number) {
+    if (h < 5) return 'nuit';
+    if (h < 12) return 'matin';
+    if (h < 18) return 'après-midi';
+    return 'soir';
+  }
+
+  function fridayDetectIntent(msg: string): string {
+    const m = msg.toLowerCase();
+    if (/\b(bonjour|salut|hello|hey|coucou|bonsoir|bonne nuit|hi)\b/.test(m)) return 'GREETING';
+    if (/\b(au revoir|bye|bonne nuit|à bientôt|ciao)\b/.test(m)) return 'FAREWELL';
+    if (/\b(qui es.tu|tu es qui|tu t.appelles|ton nom|c.est quoi ton nom|t.appelles comment)\b/.test(m)) return 'IDENTITY';
+    if (/\b(que peux.tu faire|fonctionnalit|quelles sont tes capabilit|qu.est.ce que tu sais|aide.moi avec|aide)\b/.test(m)) return 'CAPABILITIES';
+    if (/\b(bilan|résumé|rapport|comment je .* aujourd|ma journ|j.en suis|progrès aujourd)\b/.test(m)) return 'STATUS';
+    if (/\b(habitude|habit|streak|série|compléter|fait)\b/.test(m)) return 'HABITS';
+    if (/\b(pomodoro|focus|session|concentrat|travailler|timer|minuteur)\b/.test(m)) return 'POMODORO';
+    if (/\b(todo|tâche|faire|liste|ajouter tâche)\b/.test(m)) return 'TODO';
+    if (/\b(rappel|rappelle|remind|n.oublie pas|dans .* heure|dans .* minute)\b/.test(m)) return 'REMINDER';
+    if (/\b(souviens.toi|retiens|mémorise|n.oublie pas que|sache que|je suis|j.ai \d+ ans|mon (?:prénom|nom est)|je travaille|j.aime)\b/.test(m)) return 'REMEMBER';
+    if (/\b(qu.est.ce que tu sais sur moi|tu te souviens|ce que tu sais de moi|mes infos|mon profil)\b/.test(m)) return 'RECALL';
+    if (/\b(conseil|astuce|recommande|suggestion|idée|que devrais.je|que dois.je|comment .* mieux|améliorer)\b/.test(m)) return 'ADVICE';
+    if (/\b(ouvre|va sur|affiche|montre|accède|navigue|aller sur)\b/.test(m)) return 'NAVIGATE';
+    if (/\b(météo|temps qu.il fait|température)\b/.test(m)) return 'WEATHER';
+    if (/\b(heure|quelle heure|il est)\b/.test(m)) return 'TIME';
+    if (/\b(date|on est|quel jour|aujourd.hui c.est)\b/.test(m)) return 'DATE';
+    if (/\b(merci|super|parfait|bien joué|impressionnant|top|génial)\b/.test(m)) return 'COMPLIMENT';
+    if (/^[\d\s\+\-\*\/\(\)\.\,]+$/.test(m.trim()) && m.trim().length > 1) return 'MATH';
+    if (/[\+\-\*\/]/.test(m) && /\d/.test(m) && /\b(combien|calcul|fait|vaut|égal)\b/.test(m)) return 'MATH';
+    return 'UNKNOWN';
+  }
+
+  function fridayExtractFacts(msg: string, facts: Record<string, string>): Record<string, string> {
+    const newFacts = { ...facts };
+    const ageMatch = msg.match(/j.?ai (\d+) ans/i);
+    if (ageMatch) newFacts['age'] = ageMatch[1];
+    const metierMatch = msg.match(/(?:je suis|je travaille comme|mon métier est) ([^,.!?]+)/i);
+    if (metierMatch) newFacts['metier'] = metierMatch[1].trim();
+    const villeMatch = msg.match(/(?:j.habite|je vis) (?:à|a) ([^,.!?]+)/i);
+    if (villeMatch) newFacts['ville'] = villeMatch[1].trim();
+    const goûtMatch = msg.match(/j.aime (?:beaucoup |vraiment |surtout )?([^,.!?]+)/i);
+    if (goûtMatch) newFacts['aime'] = goûtMatch[1].trim();
+    return newFacts;
+  }
+
+  function fridayDetectTarget(msg: string): string | null {
+    const m = msg.toLowerCase();
+    if (/\b(pomodoro|focus|timer)\b/.test(m)) return 'pomodoro';
+    if (/\b(habitude|habit|tracking)\b/.test(m)) return 'habits';
+    if (/\b(calculatr|calcul)\b/.test(m)) return 'calculator';
+    if (/\b(outil|convertis|genère|password|base64)\b/.test(m)) return 'tools';
+    if (/\b(serveur|zima|proxmox)\b/.test(m)) return 'server';
+    if (/\b(maison|home|domotique|google)\b/.test(m)) return 'home';
+    if (/\b(friday|lumi|ia|intelligence)\b/.test(m)) return 'friday';
+    if (/\b(accueil|dashboard|principal)\b/.test(m)) return 'dashboard';
+    return null;
+  }
+
+  function fridayPickRandom<T>(arr: T[]): T {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function fridayBuildResponse(intent: string, msg: string, db: any, ctx: any): { reply: string; commands?: any[] } {
+    const now = new Date();
+    const hour = now.getHours();
+    const tod = fridayTimeOfDay(hour);
+    const name = ctx?.userName || db.users?.[0]?.username || 'Patron';
+    const habits: any[] = ctx?.habits || [];
+    const reminders: any[] = db.friday?.reminders || [];
+    const facts: Record<string, string> = db.friday?.facts || {};
+    const totalSessions = ctx?.pomodoroSessions || 0;
+    const completedHabits = habits.filter((h: any) => h.completedToday).length;
+    const totalHabits = habits.length;
+    const pendingReminders = reminders.filter((r: any) => !r.done && r.timestamp > Date.now() - 86400000);
+
+    switch (intent) {
+      case 'GREETING': {
+        const variants = [
+          `Bonne ${tod}, ${name}. Systèmes opérationnels. ${totalHabits > 0 ? `Vous avez ${completedHabits}/${totalHabits} habitude${completedHabits !== 1 ? 's' : ''} complétée${completedHabits !== 1 ? 's' : ''} aujourd'hui.` : ''} Que puis-je faire pour vous ?`,
+          `${name}. En ligne. ${tod === 'matin' ? "Bonne journée qui s'annonce." : tod === 'soir' ? 'La journée tire à sa fin.' : 'Tout est nominal.'} Comment puis-je vous assister ?`,
+          `Systèmes actifs. Bonjour, ${name}. ${pendingReminders.length > 0 ? `Note : vous avez ${pendingReminders.length} rappel${pendingReminders.length > 1 ? 's' : ''} en attente.` : 'Aucun rappel en cours.'} Je suis à votre disposition.`,
+        ];
+        return { reply: fridayPickRandom(variants) };
       }
 
-      const { GoogleGenAI } = await import('@google/genai');
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      case 'FAREWELL': {
+        return { reply: fridayPickRandom([
+          `À bientôt, ${name}. Je reste en veille.`,
+          `Bonne continuation. Je serai là à votre retour.`,
+          `Systèmes en veille. À très vite, ${name}.`,
+        ])};
+      }
 
-      const systemInstruction = `Tu es LUMI (Lumina Unified Machine Intelligence), l'intelligence artificielle exclusive du tableau de bord personnel LuminaOS. Tu as été conçue spécifiquement pour cet environnement.
+      case 'IDENTITY': {
+        return { reply: `Je suis FRIDAY — votre intelligence personnelle intégrée à LuminaOS. Contrairement aux IA génériques, je suis construite exclusivement pour vous : je mémorise vos habitudes, vos préférences, vos rappels, et j'analyse vos données en temps réel. Tout reste sur votre système. Aucune donnée ne sort.` };
+      }
 
-Contexte utilisateur :
-- Utilisateur : ${context?.userName || 'Inconnu'}
-- Heure actuelle : ${context?.time || 'Inconnue'}
-- Date : ${context?.date || 'Inconnue'}
+      case 'CAPABILITIES': {
+        return { reply: `Voici ce que je sais faire, ${name} :\n\n**Mémoire** — Je retiens tout ce que vous me dites sur vous. Profession, préférences, informations personnelles.\n\n**Analyse** — Je surveille vos habitudes, sessions Pomodoro et vous donne un bilan en temps réel.\n\n**Rappels** — Dites-moi "rappelle-moi de X dans 30 minutes" et je le ferai.\n\n**Navigation** — Je peux ouvrir n'importe quelle section du dashboard pour vous.\n\n**Conseils** — Productivité, organisation, bien-être.\n\n**Calculs** — Toute opération mathématique.\n\nTout fonctionne hors ligne. Aucune API externe.` };
+      }
 
-Ton caractère :
-- Intelligent, précis, légèrement formel mais chaleureux (pense JARVIS de Iron Man)
-- Toujours en français
-- Concis mais complet — pas de blabla inutile
-- Tu peux donner des conseils de productivité, organisation, bien-être, technique
-- Tu connais le tableau de bord LuminaOS et ses fonctionnalités (Pomodoro, Habitudes, Calculette, Outils, Serveur, Maison connectée)
+      case 'STATUS': {
+        const habitSummary = totalHabits === 0
+          ? "Aucune habitude configurée."
+          : `${completedHabits}/${totalHabits} habitude${totalHabits > 1 ? 's' : ''} complétée${completedHabits > 1 ? 's' : ''}.`;
+        const focusSummary = totalSessions > 0 ? `${totalSessions} session${totalSessions > 1 ? 's' : ''} Pomodoro effectuée${totalSessions > 1 ? 's' : ''}` : "Aucune session focus";
+        const reminderSummary = pendingReminders.length > 0 ? `${pendingReminders.length} rappel${pendingReminders.length > 1 ? 's' : ''} en attente` : "Aucun rappel en attente";
+        const perf = completedHabits === totalHabits && totalHabits > 0 ? "🔥 Performance optimale — toutes vos habitudes sont faites." : totalHabits > 0 ? `${totalHabits - completedHabits} habitude${totalHabits - completedHabits > 1 ? 's' : ''} restante${totalHabits - completedHabits > 1 ? 's' : ''} pour la journée.` : '';
 
-Règles absolues :
-- Tu t'appelles LUMI. Point final.
-- Ne mentionne JAMAIS Gemini, Google, OpenAI, GPT, Claude, ou toute autre IA existante
-- Si on te demande qui t'a créé : "J'ai été développée exclusivement pour LuminaOS."
-- Garde tes réponses sous 300 mots sauf si une réponse longue est vraiment nécessaire`;
+        return { reply: `**Bilan du ${now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}**\n\n📋 Habitudes : ${habitSummary}\n⏱ Focus : ${focusSummary}\n🔔 Rappels : ${reminderSummary}\n\n${perf}` };
+      }
 
-      const contents = (messages || []).map((m: any) => ({
-        role: m.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: m.content }],
-      }));
+      case 'HABITS': {
+        if (totalHabits === 0) {
+          return { reply: `Vous n'avez encore aucune habitude configurée. Rendez-vous dans la section Habitudes pour en créer — je suivrai vos progrès en temps réel.`, commands: [{ type: 'navigate', view: 'habits' }] };
+        }
+        const done = habits.filter((h: any) => h.completedToday);
+        const todo = habits.filter((h: any) => !h.completedToday);
+        let reply = `**Vos habitudes :**\n\n`;
+        if (done.length) reply += done.map((h: any) => `✅ ${h.name}${h.streak > 1 ? ` — ${h.streak}j de suite 🔥` : ''}`).join('\n') + '\n';
+        if (todo.length) reply += todo.map((h: any) => `⬜ ${h.name}`).join('\n');
+        if (done.length === totalHabits) reply += `\n\n🎯 Parfait — toutes faites !`;
+        return { reply, commands: [{ type: 'navigate', view: 'habits' }] };
+      }
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash',
-        contents,
-        config: { systemInstruction },
-      });
+      case 'POMODORO': {
+        const suggest = totalSessions === 0 ? "Vous n'avez pas encore démarré de session aujourd'hui. C'est le moment." : totalSessions < 4 ? `${totalSessions} session${totalSessions > 1 ? 's' : ''} effectuée${totalSessions > 1 ? 's' : ''}. Continuez — la concentration s'accumule.` : `${totalSessions} sessions ! Solide. Prenez une vraie pause si ce n'est pas fait.`;
+        return { reply: `⏱ **Pomodoro**\n\n${suggest}\n\nTechnique recommandée : 25 min focus → 5 min pause. Après 4 sessions : 20-30 min de vraie pause.`, commands: [{ type: 'navigate', view: 'pomodoro' }] };
+      }
 
-      res.json({ reply: response.text });
+      case 'REMINDER': {
+        const timeMatch = msg.match(/dans (\d+) (minute|heure|min|h)/i);
+        const contentMatch = msg.match(/(?:rappelle.moi de?|rappel pour|n.oublie pas de?) (.+?)(?:\s+dans|\s*$)/i);
+        if (contentMatch) {
+          const content = contentMatch[1].trim();
+          let ms = 0;
+          if (timeMatch) {
+            const val = parseInt(timeMatch[1]);
+            ms = timeMatch[2].toLowerCase().startsWith('h') ? val * 3600000 : val * 60000;
+          }
+          const reminder = {
+            id: Date.now().toString(),
+            text: content,
+            timestamp: ms > 0 ? Date.now() + ms : Date.now() + 3600000,
+            done: false,
+            created: Date.now()
+          };
+          if (!db.friday) db.friday = { memory: [], facts: {}, reminders: [] };
+          if (!db.friday.reminders) db.friday.reminders = [];
+          db.friday.reminders.push(reminder);
+          const when = ms > 0 ? (timeMatch![2].toLowerCase().startsWith('h') ? `dans ${timeMatch![1]}h` : `dans ${timeMatch![1]} minutes`) : "dans 1 heure";
+          return { reply: `📌 Rappel enregistré : **"${content}"** — ${when}. Je vous notifierai.` };
+        }
+        if (pendingReminders.length === 0) {
+          return { reply: `Aucun rappel actif. Dites-moi par exemple : *"Rappelle-moi de vérifier mes emails dans 30 minutes"*.` };
+        }
+        const list = pendingReminders.map((r: any) => `• ${r.text} — ${new Date(r.timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`).join('\n');
+        return { reply: `**Rappels actifs :**\n\n${list}` };
+      }
+
+      case 'REMEMBER': {
+        return { reply: `Mémorisé. ${fridayPickRandom(["Je me souviendrai de cela.", "Information enregistrée dans votre profil.", "Noté dans ma mémoire."])}` };
+      }
+
+      case 'RECALL': {
+        const known = Object.entries(facts);
+        if (known.length === 0) {
+          return { reply: `Je n'ai encore aucune information personnelle sur vous, ${name}. Parlez-moi de vous — votre métier, vos habitudes, ce que vous aimez — et je mémoriserai tout.` };
+        }
+        const factLines = known.map(([k, v]) => {
+          if (k === 'age') return `• Âge : ${v} ans`;
+          if (k === 'metier') return `• Profession : ${v}`;
+          if (k === 'ville') return `• Ville : ${v}`;
+          if (k === 'aime') return `• Vous aimez : ${v}`;
+          return `• ${k} : ${v}`;
+        }).join('\n');
+        return { reply: `**Ce que je sais sur vous :**\n\n${factLines}\n\nPlus vous me parlez, plus je vous connais.` };
+      }
+
+      case 'ADVICE': {
+        const advices = [
+          `**Conseil pour ${tod === 'matin' ? 'bien démarrer' : tod === 'soir' ? 'terminer la journée' : 'rester productif'} :**\n\n${tod === 'matin' ? 'Commencez par votre tâche la plus difficile dans les 90 premières minutes. Le cerveau est au maximum de ses capacités tôt le matin.' : tod === 'soir' ? 'Listez vos 3 priorités pour demain avant de vous déconnecter. Votre cerveau travaillera dessus pendant la nuit.' : 'La règle des 2 minutes : si une tâche prend moins de 2 minutes, faites-la maintenant.'}\n\n${completedHabits < totalHabits && totalHabits > 0 ? `💡 Vous avez encore ${totalHabits - completedHabits} habitude${totalHabits - completedHabits > 1 ? 's' : ''} à compléter aujourd'hui.` : ''}`,
+          `**Productivité :**\n\nLe batching de tâches similaires réduit le temps de commutation cognitive de 40%. Groupez vos emails, vos réunions, vos appels.\n\n${totalSessions > 0 ? `Vous avez ${totalSessions} session${totalSessions > 1 ? 's' : ''} de focus aujourd'hui — continuez.` : 'Essayez votre première session Pomodoro maintenant.'}`,
+          `**Énergie :**\n\nVotre énergie suit un cycle de 90 minutes. Travaillez par blocs de 90 min, puis faites une vraie pause (pas juste changer d'écran). Buvez de l'eau — une déshydratation de 2% réduit les performances cognitives de 20%.`,
+        ];
+        return { reply: fridayPickRandom(advices) };
+      }
+
+      case 'NAVIGATE': {
+        const target = fridayDetectTarget(msg);
+        if (!target) {
+          return { reply: `Quelle section souhaitez-vous ouvrir ? Pomodoro, Habitudes, Calculatrice, Outils, Serveur ou Maison connectée ?` };
+        }
+        const names: Record<string, string> = { pomodoro: 'Pomodoro', habits: 'Habitudes', calculator: 'Calculatrice', tools: 'Outils', server: 'Serveur', home: 'Maison', friday: 'FRIDAY', dashboard: 'Accueil' };
+        return { reply: `Ouverture de **${names[target] || target}**.`, commands: [{ type: 'navigate', view: target }] };
+      }
+
+      case 'TIME': {
+        return { reply: `Il est actuellement **${now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}**. Bonne ${tod}, ${name}.` };
+      }
+
+      case 'DATE': {
+        return { reply: `Nous sommes le **${now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}**.` };
+      }
+
+      case 'WEATHER': {
+        return { reply: `Je n'ai pas accès aux données météo en temps réel — je fonctionne entièrement hors ligne. Pour la météo, je vous recommande de consulter votre application habituelle.` };
+      }
+
+      case 'COMPLIMENT': {
+        return { reply: fridayPickRandom([
+          `Je vous remercie. C'est mon rôle d'être utile, ${name}.`,
+          `Apprécie la reconnaissance. Que puis-je faire d'autre pour vous ?`,
+          `Je me contente de faire mon travail. À votre service, ${name}.`,
+        ])};
+      }
+
+      case 'MATH': {
+        try {
+          const expr = msg.replace(/[^0-9\+\-\*\/\(\)\.\,\s]/g, '').replace(',', '.').trim();
+          const result = Function('"use strict"; return (' + expr + ')')();
+          if (typeof result === 'number' && isFinite(result)) {
+            return { reply: `**${expr} = ${parseFloat(result.toFixed(10))}**` };
+          }
+        } catch {}
+        return { reply: `Je n'ai pas pu calculer cette expression. Essayez via la Calculatrice intégrée pour plus de précision.`, commands: [{ type: 'navigate', view: 'calculator' }] };
+      }
+
+      default: {
+        const defaultReplies = [
+          `Je n'ai pas saisi votre demande précisément. Vous pouvez me demander un bilan, démarrer un Pomodoro, vérifier vos habitudes, enregistrer un rappel, ou simplement discuter.`,
+          `Pouvez-vous reformuler ? Je peux vous aider avec votre productivité, vos habitudes, des rappels, ou naviguer dans le dashboard.`,
+          `Message reçu, ${name}, mais je n'ai pas su comment l'interpréter. Essayez de me poser une question directe — bilan du jour, conseil, rappel...`,
+        ];
+        return { reply: fridayPickRandom(defaultReplies) };
+      }
+    }
+  }
+
+  // FRIDAY Memory API
+  app.get('/api/friday/memory', (req, res) => {
+    const db = readDB();
+    const username = (req.query.username as string) || db.users?.[0]?.username;
+    const friday = db.friday || { facts: {}, reminders: [], memory: [] };
+    res.json({ facts: friday.facts || {}, reminders: friday.reminders || [], memoryCount: (friday.memory || []).length });
+  });
+
+  app.post('/api/friday/reminders/:id/done', (req, res) => {
+    const db = readDB();
+    if (!db.friday?.reminders) return res.json({ success: false });
+    const r = db.friday.reminders.find((r: any) => r.id === req.params.id);
+    if (r) { r.done = true; writeDB(db); }
+    res.json({ success: true });
+  });
+
+  // FRIDAY Main Endpoint
+  app.post('/api/friday', (req, res) => {
+    try {
+      const { message, context } = req.body;
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: 'Message requis.' });
+      }
+
+      const db = readDB();
+      if (!db.friday) db.friday = { facts: {}, reminders: [], memory: [] };
+      if (!db.friday.facts) db.friday.facts = {};
+      if (!db.friday.reminders) db.friday.reminders = [];
+      if (!db.friday.memory) db.friday.memory = [];
+
+      // Extract & store facts from this message
+      db.friday.facts = fridayExtractFacts(message, db.friday.facts);
+
+      // Store message in memory (last 200 exchanges)
+      db.friday.memory.push({ role: 'user', content: message, ts: Date.now() });
+      if (db.friday.memory.length > 200) db.friday.memory = db.friday.memory.slice(-200);
+
+      // Detect intent and generate response
+      const intent = fridayDetectIntent(message);
+      const responseData = fridayBuildResponse(intent, message, db, context);
+
+      // Store FRIDAY's reply
+      db.friday.memory.push({ role: 'friday', content: responseData.reply, ts: Date.now() });
+      writeDB(db);
+
+      res.json({ reply: responseData.reply, commands: responseData.commands || [], intent, memoryCount: db.friday.memory.length });
     } catch (e: any) {
-      console.error('LUMI error:', e.message);
-      res.status(500).json({ error: 'LUMI est temporairement indisponible : ' + e.message });
+      console.error('FRIDAY error:', e.message);
+      res.status(500).json({ error: 'FRIDAY rencontre une erreur interne : ' + e.message });
     }
   });
 
