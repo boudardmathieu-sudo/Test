@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { LogOut } from "lucide-react";
 import { ClockWidget } from "./widgets/ClockWidget";
 import { WeatherWidget } from "./widgets/WeatherWidget";
 import { SystemStatsWidget } from "./widgets/SystemStatsWidget";
@@ -14,19 +13,27 @@ import { SpotifyWidget } from "./widgets/SpotifyWidget";
 import { GoogleSearchWidget } from "./widgets/GoogleSearchWidget";
 import { TodoWidget } from "./widgets/TodoWidget";
 import { NetworkMonitorWidget } from "./widgets/NetworkMonitorWidget";
-import { Sidebar } from "./Sidebar";
+import { PomodoroWidget } from "./widgets/PomodoroWidget";
+import { CalculatorWidget } from "./widgets/CalculatorWidget";
+import { HabitWidget } from "./widgets/HabitWidget";
+import { ToolsWidget } from "./widgets/ToolsWidget";
+import { ArcMenu } from "./ArcMenu";
 import { User } from "../App";
 
-const VIEW_LABELS: Record<string, { title: string; subtitle: string }> = {
-  dashboard: { title: "Tableau de bord",    subtitle: "Aperçu de votre système" },
-  server:    { title: "Serveur & Réseau",   subtitle: "Performances de l'infrastructure" },
-  home:      { title: "Maison Connectée",   subtitle: "Contrôle des appareils intelligents" },
-  settings:  { title: "Paramètres",         subtitle: "Préférences et utilisateurs" },
+const VIEW_META: Record<string, { title: string; subtitle: string }> = {
+  dashboard:  { title: "Dashboard",        subtitle: "Aperçu de votre système" },
+  server:     { title: "Serveur & Réseau",  subtitle: "Performances de l'infrastructure" },
+  home:       { title: "Maison Connectée", subtitle: "Contrôle des appareils intelligents" },
+  settings:   { title: "Paramètres",       subtitle: "Préférences et utilisateurs" },
+  pomodoro:   { title: "Pomodoro",         subtitle: "Technique de concentration" },
+  calculator: { title: "Calculette",       subtitle: "Calculs rapides" },
+  habits:     { title: "Habitudes",        subtitle: "Suivi journalier" },
+  tools:      { title: "Boîte à outils",   subtitle: "Utilitaires pratiques" },
 };
 
 const getGreeting = () => {
   const h = new Date().getHours();
-  if (h >= 5 && h < 12) return "Bonjour";
+  if (h >= 5  && h < 12) return "Bonjour";
   if (h >= 12 && h < 18) return "Bon après-midi";
   return "Bonsoir";
 };
@@ -34,13 +41,13 @@ const getGreeting = () => {
 export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogout: () => void }) => {
   const [currentView, setCurrentView] = useState("dashboard");
 
-  const label = VIEW_LABELS[currentView] ?? VIEW_LABELS.dashboard;
+  const meta = VIEW_META[currentView] ?? VIEW_META.dashboard;
 
   const renderContent = () => {
     switch (currentView) {
       case "dashboard":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             <ClockWidget />
             <WeatherWidget />
             <GoogleSearchWidget />
@@ -60,7 +67,7 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
         );
       case "home":
         return (
-          <div className="grid grid-cols-1 gap-4 max-w-4xl">
+          <div className="grid grid-cols-1 gap-4 max-w-2xl mx-auto w-full">
             <SmartHomeWidget currentUser={currentUser} />
           </div>
         );
@@ -71,78 +78,87 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
             {currentUser.role === "admin" && <DiscordBotWidget />}
           </div>
         );
+      case "pomodoro":
+        return (
+          <div className="flex justify-center">
+            <PomodoroWidget />
+          </div>
+        );
+      case "calculator":
+        return (
+          <div className="flex justify-center">
+            <CalculatorWidget />
+          </div>
+        );
+      case "habits":
+        return (
+          <div className="flex justify-center">
+            <HabitWidget />
+          </div>
+        );
+      case "tools":
+        return (
+          <div className="flex justify-center">
+            <ToolsWidget />
+          </div>
+        );
       default:
         return null;
     }
   };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
-      <Sidebar currentView={currentView} onViewChange={setCurrentView} onLogout={onLogout} />
-
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top header bar */}
-        <motion.header
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-          className="flex items-center justify-between px-6 md:px-8 pt-6 pb-4 flex-shrink-0 border-b border-white/[0.04]"
-        >
-          <div>
-            <AnimatePresence mode="wait">
-              <motion.h2
-                key={currentView + "-title"}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.25 }}
-                className="text-xl font-semibold text-white tracking-tight"
-              >
-                {currentView === "dashboard"
-                  ? `${getGreeting()}, ${currentUser.username}`
-                  : label.title}
-              </motion.h2>
-            </AnimatePresence>
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={currentView + "-sub"}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2, delay: 0.05 }}
-                className="text-gray-600 text-sm mt-0.5"
-              >
-                {currentView === "dashboard"
-                  ? `${new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}`
-                  : label.subtitle}
-              </motion.p>
-            </AnimatePresence>
-          </div>
-
-          {/* Mobile logout */}
-          <button
-            onClick={onLogout}
-            className="md:hidden p-2.5 rounded-xl bg-white/[0.04] border border-white/[0.07] text-gray-400 hover:text-rose-400 hover:border-rose-500/20 hover:bg-rose-500/8 transition-all cursor-pointer"
+    <div className="flex flex-col h-screen w-full overflow-hidden">
+      {/* Top header */}
+      <motion.header
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+        className="flex-shrink-0 px-6 md:px-10 pt-6 pb-4 border-b border-white/[0.04]"
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentView}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
           >
-            <LogOut className="w-4 h-4" />
-          </button>
-        </motion.header>
+            <h2 className="text-xl font-semibold text-white tracking-tight">
+              {currentView === "dashboard"
+                ? `${getGreeting()}, ${currentUser.username}`
+                : meta.title}
+            </h2>
+            <p className="text-gray-600 text-sm mt-0.5">
+              {currentView === "dashboard"
+                ? new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })
+                : meta.subtitle}
+            </p>
+          </motion.div>
+        </AnimatePresence>
+      </motion.header>
 
-        {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-6 md:px-8 py-5 pb-24 md:pb-6">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentView}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-            >
-              {renderContent()}
-            </motion.div>
-          </AnimatePresence>
-        </div>
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto px-6 md:px-10 py-6 pb-32">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentView}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+          >
+            {renderContent()}
+          </motion.div>
+        </AnimatePresence>
       </div>
+
+      {/* Arc menu */}
+      <ArcMenu
+        currentView={currentView}
+        onViewChange={setCurrentView}
+        onLogout={onLogout}
+      />
     </div>
   );
 };
