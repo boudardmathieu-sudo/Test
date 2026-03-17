@@ -1,112 +1,62 @@
 # LuminaOS
 
-**LuminaOS** est votre tableau de bord personnel tout-en-un — conçu pour centraliser votre vie numérique, piloter votre maison connectée, surveiller votre serveur et vous assister avec **Lumy**, votre intelligence artificielle 100% locale.
+Tableau de bord personnel conçu pour centraliser votre vie numérique. Contrôle de la maison connectée, surveillance serveur, IA locale, productivité — tout en un seul endroit.
 
 ---
 
-## Fonctionnalités
+## Ce que fait LuminaOS
 
-### Lumy — IA Personnelle
-- Assistante conversationnelle entièrement **hors ligne**, sans API externe, sans cloud
-- Mémorise vos faits personnels, vos rappels et vos habitudes
-- Fournit un bilan en temps réel de votre journée
-- Comprend les commandes en langage naturel (navigation, timer, conseils…)
-
-### Dashboard Principal
-- Horloge, météo, recherche Google intégrée
-- Todo list, bloc-notes, liens rapides personnalisables
-- Lecture Spotify (contrôle de la lecture en cours)
-- Flux d'actualités
-
-### Serveur & Infrastructure
-- Monitoring en temps réel de votre ZimaOS / CasaOS (CPU, RAM, stockage)
-- Proxy intégré pour contourner les restrictions CORS
-- Moniteur réseau
-
-### Productivité
-- **Pomodoro** — Timer focus avec comptage de sessions
-- **Habitudes** — Suivi journalier avec streaks
-- **Calculette** — Calculs rapides
-- **Boîte à outils** — Utilitaires pratiques (générateur de mot de passe, encodage base64, convertisseur…)
-
-### Maison Connectée
-- Contrôle de vos appareils Google Home
-- Interface simple et réactive
-
-### Gestion des utilisateurs
-- Multi-comptes avec rôles (admin / utilisateur)
-- Intégration Discord Bot (admin uniquement)
-- Spotify par utilisateur
+| Section | Description |
+|---|---|
+| **Dashboard** | Horloge, météo, Google, actualités, Spotify, notes, todo |
+| **Lumy** | IA personnelle 100% locale — sans API, sans cloud |
+| **Maison** | Contrôle des appareils connectés (Google Home) |
+| **Serveur** | Monitoring ZimaOS en temps réel (CPU, RAM, stockage) |
+| **Pomodoro** | Timer de concentration avec comptage de sessions |
+| **Habitudes** | Suivi quotidien avec streaks |
+| **Calculette** | Calculs rapides intégrés |
+| **Outils** | Générateur de mot de passe, base64, convertisseur |
+| **Paramètres** | Gestion des comptes, Discord bot, Spotify |
 
 ---
 
-## Démarrage rapide
+## Lancer l'application
 
 ```bash
-# Installer les dépendances
 npm install
-
-# Lancer en développement
 npm run dev
 ```
 
-L'application tourne sur le port **5000** par défaut.
+Accessible sur **http://localhost:5000**
 
 ---
 
-## Variables d'environnement
+## Connexion par défaut
 
-Créez un fichier `.env` à la racine :
+```
+Utilisateur : Mat
+Mot de passe : 211008
+```
+
+---
+
+## Variables d'environnement (optionnelles)
+
+Créez un fichier `.env` à la racine si vous voulez activer Spotify ou Gemini AI :
 
 ```env
-SPOTIFY_CLIENT_ID=...
-SPOTIFY_CLIENT_SECRET=...
-SPOTIFY_REDIRECT_URI=...
-GEMINI_API_KEY=...
+SPOTIFY_CLIENT_ID=votre_client_id
+SPOTIFY_CLIENT_SECRET=votre_client_secret
+SPOTIFY_REDIRECT_URI=http://localhost:5000/api/spotify/callback
+GEMINI_API_KEY=votre_cle_api
 ```
 
 ---
 
-## Identifiants par défaut
+## Stack
 
-| Champ       | Valeur    |
-|-------------|-----------|
-| Utilisateur | `Mat`     |
-| Mot de passe | `211008` |
-| Rôle        | Admin     |
-
----
-
-## Stack technique
-
-| Couche     | Technologie                        |
-|------------|------------------------------------|
-| Frontend   | React 19 + TypeScript + Vite       |
-| Animations | Motion (Framer Motion)             |
-| Style      | Tailwind CSS v4                    |
-| Backend    | Express.js + tsx                   |
-| Base de données | JSON local (`lumina_db.json`) |
-| IA         | Moteur local LUMY (sans API)       |
-
----
-
-## Architecture
-
-```
-src/
-├── components/
-│   ├── widgets/        # Tous les widgets fonctionnels
-│   ├── BootScreen.tsx  # Animation de démarrage
-│   ├── Dashboard.tsx   # Layout principal
-│   ├── Sidebar.tsx     # Navigation desktop
-│   └── FullScreenMenu.tsx # Menu mobile
-├── hooks/
-│   └── useDeviceDetect.ts
-└── assets/
-    └── logo.png        # Logo LuminaOS
-server.ts               # API Express + Lumy Engine
-```
-
----
-
-*LuminaOS — Votre espace, vos données, votre contrôle.*
+- **Frontend** — React 19 + TypeScript + Vite + Tailwind CSS v4
+- **Backend** — Express.js + tsx
+- **Animations** — Motion (Framer Motion)
+- **Données** — JSON local (`lumina_db.json`), pas de base de données externe
+- **IA (Lumy)** — Moteur de traitement local, zéro API externe
