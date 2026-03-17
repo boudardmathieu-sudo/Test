@@ -267,7 +267,7 @@ async function startServer() {
   });
 
   // ═══════════════════════════════════════════════════════
-  //  FRIDAY — Personal Intelligence Engine (100% Local)
+  //  LUMY — Personal Intelligence Engine (100% Local)
   // ═══════════════════════════════════════════════════════
 
   function fridayTimeOfDay(h: number) {
@@ -322,7 +322,7 @@ async function startServer() {
     if (/\b(outil|convertis|genère|password|base64)\b/.test(m)) return 'tools';
     if (/\b(serveur|zima|proxmox)\b/.test(m)) return 'server';
     if (/\b(maison|home|domotique|google)\b/.test(m)) return 'home';
-    if (/\b(friday|lumi|ia|intelligence)\b/.test(m)) return 'friday';
+    if (/\b(friday|lumi|ia|intelligence)\b/.test(m)) return 'lumy';
     if (/\b(accueil|dashboard|principal)\b/.test(m)) return 'dashboard';
     return null;
   }
@@ -363,7 +363,7 @@ async function startServer() {
       }
 
       case 'IDENTITY': {
-        return { reply: `Je suis FRIDAY — votre intelligence personnelle intégrée à LuminaOS. Contrairement aux IA génériques, je suis construite exclusivement pour vous : je mémorise vos habitudes, vos préférences, vos rappels, et j'analyse vos données en temps réel. Tout reste sur votre système. Aucune donnée ne sort.` };
+        return { reply: `Je suis Lumy — votre intelligence personnelle intégrée à LuminaOS. Contrairement aux IA génériques, je suis construite exclusivement pour vous : je mémorise vos habitudes, vos préférences, vos rappels, et j'analyse vos données en temps réel. Tout reste sur votre système. Aucune donnée ne sort.` };
       }
 
       case 'CAPABILITIES': {
@@ -462,7 +462,7 @@ async function startServer() {
         if (!target) {
           return { reply: `Quelle section souhaitez-vous ouvrir ? Pomodoro, Habitudes, Calculatrice, Outils, Serveur ou Maison connectée ?` };
         }
-        const names: Record<string, string> = { pomodoro: 'Pomodoro', habits: 'Habitudes', calculator: 'Calculatrice', tools: 'Outils', server: 'Serveur', home: 'Maison', friday: 'FRIDAY', dashboard: 'Accueil' };
+        const names: Record<string, string> = { pomodoro: 'Pomodoro', habits: 'Habitudes', calculator: 'Calculatrice', tools: 'Outils', server: 'Serveur', home: 'Maison', lumy: 'Lumy', dashboard: 'Accueil' };
         return { reply: `Ouverture de **${names[target] || target}**.`, commands: [{ type: 'navigate', view: target }] };
       }
 
@@ -556,7 +556,7 @@ async function startServer() {
       res.json({ reply: responseData.reply, commands: responseData.commands || [], intent, memoryCount: db.friday.memory.length });
     } catch (e: any) {
       console.error('FRIDAY error:', e.message);
-      res.status(500).json({ error: 'FRIDAY rencontre une erreur interne : ' + e.message });
+      res.status(500).json({ error: 'Lumy rencontre une erreur interne : ' + e.message });
     }
   });
 

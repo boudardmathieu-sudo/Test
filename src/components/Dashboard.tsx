@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Cpu } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { ClockWidget } from "./widgets/ClockWidget";
 import { WeatherWidget } from "./widgets/WeatherWidget";
 import { SystemStatsWidget } from "./widgets/SystemStatsWidget";
@@ -20,6 +20,7 @@ import { HabitWidget } from "./widgets/HabitWidget";
 import { ToolsWidget } from "./widgets/ToolsWidget";
 import { FridayWidget } from "./widgets/FridayWidget";
 import { FullScreenMenu } from "./FullScreenMenu";
+import { Sidebar } from "./Sidebar";
 import { User } from "../App";
 
 const VIEW_META: Record<string, { title: string; subtitle: string }> = {
@@ -31,7 +32,7 @@ const VIEW_META: Record<string, { title: string; subtitle: string }> = {
   calculator: { title: "Calculette",       subtitle: "Calculs rapides" },
   habits:     { title: "Habitudes",        subtitle: "Suivi journalier" },
   tools:      { title: "Boîte à outils",   subtitle: "Utilitaires pratiques" },
-  friday:     { title: "FRIDAY",           subtitle: "Intelligence personnelle — 100% locale" },
+  lumy:       { title: "Lumy",             subtitle: "Intelligence personnelle — 100% locale" },
 };
 
 const getGreeting = () => {
@@ -86,7 +87,7 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
       case "calculator": return <div className="flex justify-center"><CalculatorWidget /></div>;
       case "habits":     return <div className="flex justify-center"><HabitWidget /></div>;
       case "tools":      return <div className="flex justify-center"><ToolsWidget /></div>;
-      case "friday":
+      case "lumy":
         return (
           <div className="h-full">
             <FridayWidget userName={currentUser.username} onNavigate={(view) => setCurrentView(view)} />
@@ -97,8 +98,17 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
   };
 
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden">
-      {/* Full screen menu */}
+    <div className="flex h-screen w-full overflow-hidden">
+      {/* Desktop sidebar */}
+      <div className="hidden md:block">
+        <Sidebar
+          currentView={currentView}
+          onViewChange={setCurrentView}
+          onLogout={onLogout}
+        />
+      </div>
+
+      {/* Full screen menu (mobile + all screens via floating button) */}
       <FullScreenMenu
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
@@ -108,88 +118,91 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
         userName={currentUser.username}
       />
 
-      {/* Top header */}
-      <motion.header
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-        className="flex-shrink-0 px-6 md:px-10 pt-6 pb-4 border-b border-white/[0.04] flex items-center gap-4"
-      >
-        <div className="flex-1 min-w-0">
+      {/* Main area */}
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        {/* Top header */}
+        <motion.header
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+          className="flex-shrink-0 px-6 md:px-8 pt-5 pb-4 border-b border-white/[0.04] flex items-center gap-4"
+        >
+          <div className="flex-1 min-w-0">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentView}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+              >
+                <h2 className="text-xl font-semibold text-white tracking-tight truncate">
+                  {currentView === "dashboard"
+                    ? `${getGreeting()}, ${currentUser.username}`
+                    : currentView === "lumy"
+                    ? <><span className="text-amber-400">Lumy</span> <span className="text-gray-700 font-light text-base">— IA Personnelle</span></>
+                    : meta.title}
+                </h2>
+                <p className="text-gray-600 text-sm mt-0.5">
+                  {currentView === "dashboard"
+                    ? new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })
+                    : currentView === "lumy"
+                    ? "Mémoire locale · Sans API · Sans cloud"
+                    : meta.subtitle}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Lumy quick-access badge */}
+          {currentView !== 'lumy' && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              onClick={() => setCurrentView('lumy')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium hover:bg-amber-500/15 transition-all cursor-pointer flex-shrink-0"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Lumy
+            </motion.button>
+          )}
+        </motion.header>
+
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto px-6 md:px-8 py-6 pb-28 md:pb-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentView}
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
+              exit={{ opacity: 0, y: -14 }}
+              transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
             >
-              <h2 className="text-xl font-semibold text-white tracking-tight truncate">
-                {currentView === "dashboard"
-                  ? `${getGreeting()}, ${currentUser.username}`
-                  : currentView === "friday"
-                  ? <><span className="text-amber-400">FRIDAY</span> <span className="text-gray-700 font-light text-base">— IA Personnelle</span></>
-                  : meta.title}
-              </h2>
-              <p className="text-gray-600 text-sm mt-0.5">
-                {currentView === "dashboard"
-                  ? new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })
-                  : currentView === "friday"
-                  ? "Mémoire locale · Sans API · Sans cloud"
-                  : meta.subtitle}
-              </p>
+              {renderContent()}
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* FRIDAY quick-access badge */}
-        {currentView !== 'friday' && (
+        {/* Floating LOS button — mobile only */}
+        <div className="md:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-40">
           <motion.button
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            onClick={() => setCurrentView('friday')}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium hover:bg-amber-500/15 transition-all cursor-pointer flex-shrink-0"
+            onClick={() => setMenuOpen(true)}
+            whileHover={{ scale: 1.06 }}
+            whileTap={{ scale: 0.94 }}
+            className="relative flex items-center justify-center cursor-pointer"
           >
-            <Cpu className="w-3.5 h-3.5" />
-            FRIDAY
+            <motion.div
+              animate={{ scale: [1, 1.35, 1], opacity: [0.35, 0, 0.35] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute w-14 h-14 rounded-full bg-rose-500/30"
+            />
+            <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center border-2 border-white/15 shadow-[0_0_30px_rgba(244,63,94,0.4)]">
+              <span className="text-sm font-bold text-white tracking-tight">
+                L<span className="font-light opacity-75">OS</span>
+              </span>
+            </div>
           </motion.button>
-        )}
-      </motion.header>
-
-      {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto px-6 md:px-10 py-6 pb-28">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentView}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -14 }}
-            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-          >
-            {renderContent()}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* Floating LOS button */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40">
-        <motion.button
-          onClick={() => setMenuOpen(true)}
-          whileHover={{ scale: 1.06 }}
-          whileTap={{ scale: 0.94 }}
-          className="relative flex items-center justify-center cursor-pointer"
-        >
-          <motion.div
-            animate={{ scale: [1, 1.35, 1], opacity: [0.35, 0, 0.35] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute w-14 h-14 rounded-full bg-rose-500/30"
-          />
-          <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center border-2 border-white/15 shadow-[0_0_30px_rgba(244,63,94,0.4)]">
-            <span className="text-sm font-bold text-white tracking-tight">
-              L<span className="font-light opacity-75">OS</span>
-            </span>
-          </div>
-        </motion.button>
+        </div>
       </div>
     </div>
   );

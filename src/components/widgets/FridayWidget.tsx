@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Send, Brain, Cpu, ChevronRight, Bell, BellOff, Trash2, MemoryStick } from 'lucide-react';
+import { Send, Brain, Cpu, ChevronRight, Bell, Trash2, MemoryStick, Sparkles } from 'lucide-react';
 
 interface Message {
   id: string;
-  role: 'user' | 'friday';
+  role: 'user' | 'lumy';
   content: string;
   ts: number;
   intent?: string;
@@ -44,8 +44,8 @@ export const FridayWidget = ({ userName, onNavigate }: FridayWidgetProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '0',
-      role: 'friday',
-      content: `Systèmes actifs, ${userName}. Je suis **FRIDAY** — votre intelligence personnelle intégrée à LuminaOS.\n\nJe mémorise tout ce que vous faites et me dites. Aucune donnée ne sort de votre système. Comment puis-je vous assister ?`,
+      role: 'lumy',
+      content: `Systèmes actifs, ${userName}. Je suis **Lumy** — votre intelligence personnelle intégrée à LuminaOS.\n\nJe mémorise tout ce que vous faites et me dites. Aucune donnée ne sort de votre système. Comment puis-je vous assister ?`,
       ts: Date.now(),
     }
   ]);
@@ -53,7 +53,6 @@ export const FridayWidget = ({ userName, onNavigate }: FridayWidgetProps) => {
   const [loading, setLoading] = useState(false);
   const [memoryCount, setMemoryCount] = useState(0);
   const [reminders, setReminders] = useState<any[]>([]);
-  const [showMemory, setShowMemory] = useState(false);
   const [facts, setFacts] = useState<Record<string, string>>({});
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -121,29 +120,15 @@ export const FridayWidget = ({ userName, onNavigate }: FridayWidgetProps) => {
 
       setMemoryCount(data.memoryCount || memoryCount + 2);
 
-      const fridayMsg: Message = {
+      const lumyMsg: Message = {
         id: (Date.now() + 1).toString(),
-        role: 'friday',
+        role: 'lumy',
         content: data.reply || 'Désolé, aucune réponse générée.',
         ts: Date.now(),
         intent: data.intent,
         commands: data.commands,
       };
-      setMessages(prev => [...prev, fridayMsg]);
-
-      if (data.commands?.length && onNavigate) {
-        const nav = data.commands.find((c: any) => c.type === 'navigate');
-        if (nav) {
-          setTimeout(() => onNavigate(nav.view), 1200);
-        }
-      }
-
-      if (data.commands?.some((c: any) => c.type === 'navigate' && c.view === 'facts')) {
-        fetch('/api/friday/memory').then(r => r.json()).then(d => {
-          setFacts(d.facts || {});
-          setReminders(d.reminders?.filter((r: any) => !r.done) || []);
-        });
-      }
+      setMessages(prev => [...prev, lumyMsg]);
 
       fetch('/api/friday/memory').then(r => r.json()).then(d => {
         setFacts(d.facts || {});
@@ -152,7 +137,7 @@ export const FridayWidget = ({ userName, onNavigate }: FridayWidgetProps) => {
     } catch (e: any) {
       setMessages(prev => [...prev, {
         id: (Date.now() + 2).toString(),
-        role: 'friday',
+        role: 'lumy',
         content: `Erreur système : ${e.message}`,
         ts: Date.now(),
       }]);
@@ -172,33 +157,32 @@ export const FridayWidget = ({ userName, onNavigate }: FridayWidgetProps) => {
   return (
     <div className="w-full h-full flex flex-col md:flex-row gap-4" style={{ minHeight: '70vh' }}>
 
-      {/* Left panel — FRIDAY info & memory */}
+      {/* Left panel — Lumy info & memory */}
       <div className="md:w-72 flex-shrink-0 flex flex-col gap-3">
 
-        {/* FRIDAY Identity Card */}
+        {/* Lumy Identity Card */}
         <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5">
           <div className="flex items-start gap-4 mb-5">
             <div className="relative flex-shrink-0">
               <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-                className="absolute -inset-2 rounded-full"
-                style={{ background: 'conic-gradient(from 0deg, transparent 70%, rgba(251,191,36,0.6) 90%, transparent 100%)' }}
+                animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.7, 0.4] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute inset-0 rounded-full bg-amber-400/30 blur-md"
               />
               <motion.div
                 animate={{ boxShadow: ['0 0 10px rgba(251,191,36,0.2)', '0 0 25px rgba(251,191,36,0.5)', '0 0 10px rgba(251,191,36,0.2)'] }}
                 transition={{ duration: 2.5, repeat: Infinity }}
-                className="relative w-14 h-14 rounded-2xl rotate-45 bg-[#0f0f14] border border-amber-500/30 flex items-center justify-center"
+                className="relative w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg"
               >
-                <span className="-rotate-45 text-lg font-bold text-amber-400">F</span>
+                <Sparkles className="w-6 h-6 text-white" />
               </motion.div>
             </div>
             <div>
-              <div className="text-white font-semibold text-lg leading-tight">FRIDAY</div>
-              <div className="text-[11px] text-gray-600 leading-snug mt-0.5">Personal Intelligence<br/>LuminaOS v2.0</div>
+              <div className="text-white font-semibold text-lg leading-tight">Lumy</div>
+              <div className="text-[11px] text-gray-600 leading-snug mt-0.5">Intelligence Personnelle<br/>LuminaOS v2.0</div>
               <div className="flex items-center gap-1.5 mt-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-[10px] font-mono text-emerald-400">ONLINE — LOCAL</span>
+                <span className="text-[10px] font-mono text-emerald-400">EN LIGNE — LOCAL</span>
               </div>
             </div>
           </div>
@@ -283,12 +267,12 @@ export const FridayWidget = ({ userName, onNavigate }: FridayWidgetProps) => {
         <div className="flex-shrink-0 px-5 py-4 border-b border-white/[0.04] flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Cpu className="w-4 h-4 text-amber-400" />
-            <span className="text-sm font-medium text-white">Conversation</span>
+            <span className="text-sm font-medium text-white">Conversation avec Lumy</span>
             <span className="text-[10px] font-mono text-gray-700 bg-white/[0.03] px-2 py-0.5 rounded-md">100% LOCAL</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[10px] font-mono text-gray-600">NO API — NO CLOUD</span>
+            <span className="text-[10px] font-mono text-gray-600">SANS API — SANS CLOUD</span>
           </div>
         </div>
 
@@ -303,21 +287,21 @@ export const FridayWidget = ({ userName, onNavigate }: FridayWidgetProps) => {
               className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
             >
               {/* Avatar */}
-              <div className={`w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center text-xs font-bold border ${
-                msg.role === 'friday'
-                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-400 rotate-45'
-                  : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+              <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${
+                msg.role === 'lumy'
+                  ? 'bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-md'
+                  : 'bg-rose-500/10 border border-rose-500/20 text-rose-400'
               }`}>
-                <span className={msg.role === 'friday' ? '-rotate-45' : ''}>{msg.role === 'friday' ? 'F' : userName[0].toUpperCase()}</span>
+                {msg.role === 'lumy' ? <Sparkles className="w-3.5 h-3.5" /> : userName[0].toUpperCase()}
               </div>
 
               {/* Bubble */}
               <div className={`max-w-[78%] rounded-2xl px-4 py-3 text-sm ${
                 msg.role === 'user'
                   ? 'bg-rose-500/15 border border-rose-500/20 text-white rounded-tr-md'
-                  : 'bg-white/[0.04] border border-white/[0.06] rounded-tl-md'
+                  : 'bg-amber-500/[0.06] border border-amber-500/[0.12] rounded-tl-md'
               }`}>
-                {msg.role === 'friday' ? (
+                {msg.role === 'lumy' ? (
                   <div className="space-y-0.5">{parseMarkdown(msg.content)}</div>
                 ) : (
                   <span className="text-white">{msg.content}</span>
@@ -328,14 +312,6 @@ export const FridayWidget = ({ userName, onNavigate }: FridayWidgetProps) => {
                   <div className="mt-2 pt-2 border-t border-white/[0.06] flex items-center justify-between">
                     <span className="text-[9px] font-mono text-gray-700 uppercase tracking-widest">{msg.intent}</span>
                     <span className="text-[9px] text-gray-700">{new Date(msg.ts).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
-                  </div>
-                )}
-
-                {/* Commands preview */}
-                {msg.commands?.some((c: any) => c.type === 'navigate') && (
-                  <div className="mt-2 flex items-center gap-1.5 text-[10px] text-amber-400/70">
-                    <ChevronRight className="w-3 h-3" />
-                    Navigation automatique...
                   </div>
                 )}
               </div>
@@ -349,10 +325,10 @@ export const FridayWidget = ({ userName, onNavigate }: FridayWidgetProps) => {
                 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                 className="flex gap-3"
               >
-                <div className="w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center text-xs font-bold border bg-amber-500/10 border-amber-500/30 text-amber-400 rotate-45">
-                  <span className="-rotate-45">F</span>
+                <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-amber-400 to-orange-500 shadow-md">
+                  <Sparkles className="w-3.5 h-3.5 text-white" />
                 </div>
-                <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl rounded-tl-md px-4 py-3 flex items-center gap-1.5">
+                <div className="bg-amber-500/[0.06] border border-amber-500/[0.12] rounded-2xl rounded-tl-md px-4 py-3 flex items-center gap-1.5">
                   {[0, 1, 2].map(i => (
                     <motion.div key={i}
                       animate={{ y: [0, -5, 0] }}
@@ -387,7 +363,7 @@ export const FridayWidget = ({ userName, onNavigate }: FridayWidgetProps) => {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKey}
-              placeholder="Parlez à FRIDAY..."
+              placeholder="Parlez à Lumy…"
               disabled={loading}
               className="flex-1 bg-white/[0.04] border border-white/[0.07] rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-700 outline-none focus:border-amber-500/40 focus:bg-white/[0.06] transition-all disabled:opacity-50"
             />

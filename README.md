@@ -1,20 +1,112 @@
 # LuminaOS
 
-LuminaOS est un tableau de bord personnel et un centre de contrôle pour votre maison connectée et votre serveur (ZimaOS/CasaOS).
+**LuminaOS** est votre tableau de bord personnel tout-en-un — conçu pour centraliser votre vie numérique, piloter votre maison connectée, surveiller votre serveur et vous assister avec **Lumy**, votre intelligence artificielle 100% locale.
+
+---
 
 ## Fonctionnalités
-- **Multi-utilisateurs** : Gestion des comptes administrateur et utilisateurs standards.
-- **Monitoring Serveur** : Suivi en temps réel de votre ZimaOS (CPU, RAM, Stockage) sans problème de CORS grâce au proxy intégré.
-- **Maison Connectée** : Contrôle de vos appareils intelligents.
-- **Outils intégrés** : Météo, Todo list, Pomodoro, Crypto tracker, Moniteur réseau, Bloc-notes, Raccourcis.
-- **Interface Mobile** : Navigation optimisée pour les smartphones avec une barre de navigation inférieure.
 
-## Installation locale
-1. Clonez le projet
-2. Installez les dépendances : `npm install`
-3. Lancez le serveur : `npm run dev`
-4. Accédez à `http://localhost:3000` (ou via l'IP de votre machine sur votre réseau local)
+### Lumy — IA Personnelle
+- Assistante conversationnelle entièrement **hors ligne**, sans API externe, sans cloud
+- Mémorise vos faits personnels, vos rappels et vos habitudes
+- Fournit un bilan en temps réel de votre journée
+- Comprend les commandes en langage naturel (navigation, timer, conseils…)
+
+### Dashboard Principal
+- Horloge, météo, recherche Google intégrée
+- Todo list, bloc-notes, liens rapides personnalisables
+- Lecture Spotify (contrôle de la lecture en cours)
+- Flux d'actualités
+
+### Serveur & Infrastructure
+- Monitoring en temps réel de votre ZimaOS / CasaOS (CPU, RAM, stockage)
+- Proxy intégré pour contourner les restrictions CORS
+- Moniteur réseau
+
+### Productivité
+- **Pomodoro** — Timer focus avec comptage de sessions
+- **Habitudes** — Suivi journalier avec streaks
+- **Calculette** — Calculs rapides
+- **Boîte à outils** — Utilitaires pratiques (générateur de mot de passe, encodage base64, convertisseur…)
+
+### Maison Connectée
+- Contrôle de vos appareils Google Home
+- Interface simple et réactive
+
+### Gestion des utilisateurs
+- Multi-comptes avec rôles (admin / utilisateur)
+- Intégration Discord Bot (admin uniquement)
+- Spotify par utilisateur
+
+---
+
+## Démarrage rapide
+
+```bash
+# Installer les dépendances
+npm install
+
+# Lancer en développement
+npm run dev
+```
+
+L'application tourne sur le port **5000** par défaut.
+
+---
+
+## Variables d'environnement
+
+Créez un fichier `.env` à la racine :
+
+```env
+SPOTIFY_CLIENT_ID=...
+SPOTIFY_CLIENT_SECRET=...
+SPOTIFY_REDIRECT_URI=...
+GEMINI_API_KEY=...
+```
+
+---
 
 ## Identifiants par défaut
-- **Utilisateur** : Mat
-- **Mot de passe** : 211008
+
+| Champ       | Valeur    |
+|-------------|-----------|
+| Utilisateur | `Mat`     |
+| Mot de passe | `211008` |
+| Rôle        | Admin     |
+
+---
+
+## Stack technique
+
+| Couche     | Technologie                        |
+|------------|------------------------------------|
+| Frontend   | React 19 + TypeScript + Vite       |
+| Animations | Motion (Framer Motion)             |
+| Style      | Tailwind CSS v4                    |
+| Backend    | Express.js + tsx                   |
+| Base de données | JSON local (`lumina_db.json`) |
+| IA         | Moteur local LUMY (sans API)       |
+
+---
+
+## Architecture
+
+```
+src/
+├── components/
+│   ├── widgets/        # Tous les widgets fonctionnels
+│   ├── BootScreen.tsx  # Animation de démarrage
+│   ├── Dashboard.tsx   # Layout principal
+│   ├── Sidebar.tsx     # Navigation desktop
+│   └── FullScreenMenu.tsx # Menu mobile
+├── hooks/
+│   └── useDeviceDetect.ts
+└── assets/
+    └── logo.png        # Logo LuminaOS
+server.ts               # API Express + Lumy Engine
+```
+
+---
+
+*LuminaOS — Votre espace, vos données, votre contrôle.*

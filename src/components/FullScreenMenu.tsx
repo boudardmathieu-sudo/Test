@@ -3,13 +3,13 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   LayoutDashboard, Home, Server, Settings,
   Timer, Calculator, CheckSquare, Wrench,
-  LogOut, X, Cpu, ChevronRight, Clock
+  LogOut, X, Sparkles, ChevronRight, Clock
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   {
-    id: 'friday',     label: 'FRIDAY',        subtitle: 'IA locale — sans API, sans cloud',
-    icon: Cpu,        color: '#fbbf24',        gradient: 'from-amber-500/20 to-orange-600/10',
+    id: 'lumy',       label: 'Lumy',           subtitle: 'IA locale — sans API, sans cloud',
+    icon: Sparkles,   color: '#fbbf24',        gradient: 'from-amber-500/20 to-orange-600/10',
     border: 'border-amber-500/20', featured: true,
   },
   {
