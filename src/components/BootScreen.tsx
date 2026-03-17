@@ -4,13 +4,12 @@ import { motion, AnimatePresence } from 'motion/react';
 const BOOT_MESSAGES = [
   "Initialisation du noyau LuminaOS...",
   "Chargement des modules système...",
-  "Montage des systèmes de fichiers virtuels...",
+  "Montage des systèmes de fichiers...",
   "Démarrage du gestionnaire de fenêtres...",
   "Connexion aux services cloud...",
-  "Vérification de l'intégrité des données...",
-  "Chargement de l'interface utilisateur...",
-  "Préparation de l'environnement de bureau...",
-  "Système prêt."
+  "Vérification de l'intégrité...",
+  "Chargement de l'interface...",
+  "Système prêt.",
 ];
 
 export const BootScreen = ({ onComplete }: { onComplete: () => void }) => {
@@ -19,30 +18,26 @@ export const BootScreen = ({ onComplete }: { onComplete: () => void }) => {
   const [messageIndex, setMessageIndex] = useState(0);
 
   useEffect(() => {
-    const duration = 3000; // 3 seconds total boot time
-    const intervalTime = 50;
+    const duration = 2800;
+    const intervalTime = 40;
     const steps = duration / intervalTime;
     let currentStep = 0;
 
     const interval = setInterval(() => {
       currentStep++;
       const newProgress = (currentStep / steps) * 100;
-      
       setProgress(newProgress);
-      
-      // Update message based on progress
-      const newMessageIndex = Math.min(
+      setMessageIndex(Math.min(
         Math.floor((newProgress / 100) * BOOT_MESSAGES.length),
         BOOT_MESSAGES.length - 1
-      );
-      setMessageIndex(newMessageIndex);
+      ));
 
       if (currentStep >= steps) {
         clearInterval(interval);
         setTimeout(() => {
           setIsVisible(false);
-          setTimeout(onComplete, 800); // Wait for fade out
-        }, 400);
+          setTimeout(onComplete, 700);
+        }, 300);
       }
     }, intervalTime);
 
@@ -52,80 +47,93 @@ export const BootScreen = ({ onComplete }: { onComplete: () => void }) => {
   return (
     <AnimatePresence>
       {isVisible && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
-          className="fixed inset-0 z-50 bg-[#050505] flex flex-col items-center justify-center overflow-hidden"
+          exit={{ opacity: 0, filter: "blur(12px)", scale: 1.04 }}
+          transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+          className="fixed inset-0 z-50 bg-[#060608] flex flex-col items-center justify-center"
         >
-          {/* Background ambient glow */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 0.5, 0.2] }}
-            transition={{ duration: 2 }}
-            className="absolute w-[40rem] h-[40rem] bg-rose-600/10 rounded-full blur-[100px]"
-          />
+          {/* Ambient glow */}
+          <div className="absolute inset-0 overflow-hidden">
+            <motion.div
+              animate={{ scale: [1, 1.15, 1], opacity: [0.12, 0.2, 0.12] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-rose-600/20 blur-[100px]"
+            />
+            <motion.div
+              animate={{ scale: [1, 0.9, 1], opacity: [0.08, 0.15, 0.08] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-violet-600/20 blur-[80px]"
+            />
+          </div>
 
           <motion.div
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex flex-col items-center z-10"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+            className="relative flex flex-col items-center"
           >
-            {/* Logo */}
-            <div className="relative mb-8">
-              <motion.div 
+            {/* Logo mark */}
+            <div className="relative mb-10 flex items-center justify-center">
+              {/* Rotating ring outer */}
+              <motion.div
                 animate={{ rotate: 360 }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                className="w-24 h-24 rounded-full border-t-2 border-r-2 border-rose-500 border-opacity-50 absolute -inset-4"
+                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                className="absolute w-[88px] h-[88px] rounded-full"
+                style={{
+                  background: "conic-gradient(from 0deg, transparent 60%, rgba(244,63,94,0.6) 80%, transparent 100%)",
+                }}
               />
-              <motion.div 
+              {/* Rotating ring inner */}
+              <motion.div
                 animate={{ rotate: -360 }}
-                transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-                className="w-20 h-20 rounded-full border-b-2 border-l-2 border-purple-500 border-opacity-50 absolute -inset-2"
+                transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                className="absolute w-[68px] h-[68px] rounded-full"
+                style={{
+                  background: "conic-gradient(from 180deg, transparent 60%, rgba(139,92,246,0.5) 80%, transparent 100%)",
+                }}
               />
-              <div className="text-5xl font-bold text-white tracking-tight flex items-center justify-center w-16 h-16">
-                L<span className="text-rose-500 font-light">OS</span>
+              {/* Center logo */}
+              <div className="w-14 h-14 rounded-full bg-[#0c0c0f] border border-white/10 flex items-center justify-center shadow-[0_0_30px_rgba(244,63,94,0.2)]">
+                <span className="text-xl font-bold text-white tracking-tight">
+                  L<span className="text-rose-500 font-light">OS</span>
+                </span>
               </div>
             </div>
 
-            <div className="text-3xl font-bold text-white tracking-tight mb-12">
+            {/* Brand name */}
+            <div className="text-4xl font-semibold text-white tracking-tight mb-1">
               Lumina<span className="text-rose-500 font-light">OS</span>
             </div>
-            
-            {/* Progress Bar */}
-            <div className="w-80 h-1.5 bg-white/5 rounded-full overflow-hidden mb-6 relative">
-              <motion.div 
-                className="absolute top-0 left-0 bottom-0 bg-gradient-to-r from-rose-500 via-purple-500 to-rose-500"
-                style={{ width: `${Math.min(progress, 100)}%` }}
-                animate={{ backgroundPosition: ["0% 50%", "100% 50%"] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              />
-              {/* Glow effect on the progress bar */}
-              <motion.div 
-                className="absolute top-0 bottom-0 bg-white/50 blur-[2px]"
-                style={{ left: `calc(${Math.min(progress, 100)}% - 10px)`, width: '20px' }}
-              />
+            <div className="text-gray-600 text-xs font-mono tracking-widest uppercase mb-14">
+              v2.0.4-stable
             </div>
 
-            {/* Terminal-like text */}
-            <div className="h-6 overflow-hidden flex items-center justify-center">
-              <AnimatePresence mode="wait">
+            {/* Progress bar */}
+            <div className="w-72 mb-5">
+              <div className="w-full h-[2px] bg-white/5 rounded-full overflow-hidden">
                 <motion.div
+                  className="h-full rounded-full bg-gradient-to-r from-rose-600 via-rose-400 to-violet-500"
+                  style={{ width: `${Math.min(progress, 100)}%` }}
+                  transition={{ ease: "easeOut" }}
+                />
+              </div>
+            </div>
+
+            {/* Status message */}
+            <div className="h-5 flex items-center justify-center w-80">
+              <AnimatePresence mode="wait">
+                <motion.p
                   key={messageIndex}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
+                  exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.2 }}
-                  className="text-gray-500 text-xs font-mono tracking-wider"
+                  className="text-gray-600 text-[11px] font-mono tracking-wide text-center"
                 >
                   {BOOT_MESSAGES[messageIndex]}
-                </motion.div>
+                </motion.p>
               </AnimatePresence>
-            </div>
-            
-            <div className="mt-2 text-rose-500/50 text-[10px] font-mono">
-              v2.0.4-stable
             </div>
           </motion.div>
         </motion.div>

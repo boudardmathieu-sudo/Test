@@ -14,9 +14,9 @@ export default function App() {
   const [isBooting, setIsBooting] = useState(true);
 
   return (
-    <div className="min-h-screen bg-[#050505] overflow-x-hidden relative font-sans selection:bg-rose-500/30">
+    <div className="min-h-screen bg-[#060608] overflow-x-hidden relative font-sans">
       {isBooting && <BootScreen onComplete={() => setIsBooting(false)} />}
-      
+
       {!isBooting && (
         <>
           <PetalBg />
@@ -26,7 +26,9 @@ export default function App() {
                 <LoginScreen onLogin={(user) => setCurrentUser(user)} />
               </div>
             ) : (
-              <Dashboard currentUser={currentUser} onLogout={() => setCurrentUser(null)} />
+              <div className="h-screen overflow-hidden">
+                <Dashboard currentUser={currentUser} onLogout={() => setCurrentUser(null)} />
+              </div>
             )}
           </div>
         </>
