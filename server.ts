@@ -266,21 +266,24 @@ async function startServer() {
     }
   });
 
+  const PORT = 5000;
+  const httpServer = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+
   // Vite middleware
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: { server: httpServer },
+      },
       appType: 'spa'
     });
     app.use(vite.middlewares);
   } else {
     app.use(express.static('dist'));
   }
-
-  const PORT = 5000;
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
 }
 
 startServer();
