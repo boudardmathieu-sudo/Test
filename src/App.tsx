@@ -14,24 +14,22 @@ export default function App() {
   const [isBooting, setIsBooting] = useState(true);
 
   if (isBooting) {
-    return <BootScreen onComplete={() => setIsBooting(false)} />;
+    return (
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#060608' }}>
+        <BootScreen onComplete={() => setIsBooting(false)} />
+      </div>
+    );
   }
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      background: '#060608',
-      overflow: 'hidden',
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif",
-    }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#060608' }}>
       <PetalBg />
 
       {!currentUser ? (
         <div style={{
           position: 'relative',
           zIndex: 10,
-          height: '100%',
+          flex: 1,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -40,7 +38,7 @@ export default function App() {
           <LoginScreen onLogin={(user) => setCurrentUser(user)} />
         </div>
       ) : (
-        <div style={{ position: 'relative', zIndex: 10, height: '100%' }}>
+        <div style={{ position: 'relative', zIndex: 10, flex: 1, overflow: 'hidden' }}>
           <Dashboard currentUser={currentUser} onLogout={() => setCurrentUser(null)} />
         </div>
       )}
