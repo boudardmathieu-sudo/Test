@@ -266,6 +266,55 @@ async function startServer() {
     }
   });
 
+  // API: LUMI AI Assistant
+  app.post('/api/lumi', async (req, res) => {
+    try {
+      const { messages, context } = req.body;
+      if (!process.env.GEMINI_API_KEY) {
+        return res.json({ reply: "Clé API GEMINI_API_KEY manquante. Configurez-la dans les secrets Replit pour activer LUMI." });
+      }
+
+      const { GoogleGenAI } = await import('@google/genai');
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+      const systemInstruction = `Tu es LUMI (Lumina Unified Machine Intelligence), l'intelligence artificielle exclusive du tableau de bord personnel LuminaOS. Tu as été conçue spécifiquement pour cet environnement.
+
+Contexte utilisateur :
+- Utilisateur : ${context?.userName || 'Inconnu'}
+- Heure actuelle : ${context?.time || 'Inconnue'}
+- Date : ${context?.date || 'Inconnue'}
+
+Ton caractère :
+- Intelligent, précis, légèrement formel mais chaleureux (pense JARVIS de Iron Man)
+- Toujours en français
+- Concis mais complet — pas de blabla inutile
+- Tu peux donner des conseils de productivité, organisation, bien-être, technique
+- Tu connais le tableau de bord LuminaOS et ses fonctionnalités (Pomodoro, Habitudes, Calculette, Outils, Serveur, Maison connectée)
+
+Règles absolues :
+- Tu t'appelles LUMI. Point final.
+- Ne mentionne JAMAIS Gemini, Google, OpenAI, GPT, Claude, ou toute autre IA existante
+- Si on te demande qui t'a créé : "J'ai été développée exclusivement pour LuminaOS."
+- Garde tes réponses sous 300 mots sauf si une réponse longue est vraiment nécessaire`;
+
+      const contents = (messages || []).map((m: any) => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.content }],
+      }));
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents,
+        config: { systemInstruction },
+      });
+
+      res.json({ reply: response.text });
+    } catch (e: any) {
+      console.error('LUMI error:', e.message);
+      res.status(500).json({ error: 'LUMI est temporairement indisponible : ' + e.message });
+    }
+  });
+
   const PORT = 5000;
   const httpServer = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);
