@@ -1,62 +1,88 @@
-# LuminaOS
+<div align="center">
 
-Tableau de bord personnel conçu pour centraliser votre vie numérique. Contrôle de la maison connectée, surveillance serveur, IA locale, productivité — tout en un seul endroit.
+<img src="src/assets/logo.png" width="80" alt="LuminaOS Logo" />
 
----
+# ✦ LuminaOS ✦
 
-## Ce que fait LuminaOS
+<p>
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white" />
+  <img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?style=flat-square&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vite-6-646CFF?style=flat-square&logo=vite&logoColor=white" />
+  <img src="https://img.shields.io/badge/Express-4-000000?style=flat-square&logo=express&logoColor=white" />
+</p>
 
-| Section | Description |
-|---|---|
-| **Dashboard** | Horloge, météo, Google, actualités, Spotify, notes, todo |
-| **Lumy** | IA personnelle 100% locale — sans API, sans cloud |
-| **Maison** | Contrôle des appareils connectés (Google Home) |
-| **Serveur** | Monitoring ZimaOS en temps réel (CPU, RAM, stockage) |
-| **Pomodoro** | Timer de concentration avec comptage de sessions |
-| **Habitudes** | Suivi quotidien avec streaks |
-| **Calculette** | Calculs rapides intégrés |
-| **Outils** | Générateur de mot de passe, base64, convertisseur |
-| **Paramètres** | Gestion des comptes, Discord bot, Spotify |
+<p><em>Ton tableau de bord personnel — maison connectée, IA locale, monitoring serveur, et productivité, au même endroit.</em></p>
+
+</div>
 
 ---
 
-## Lancer l'application
+## 🚀 Lancement
 
 ```bash
 npm install
 npm run dev
 ```
 
-Accessible sur **http://localhost:5000**
+> L'application tourne sur **[http://localhost:5000](http://localhost:5000)**
 
 ---
 
-## Connexion par défaut
+## 🔐 Connexion par défaut
 
-```
-Utilisateur : Mat
-Mot de passe : 211008
-```
+| Champ | Valeur |
+|:---:|:---:|
+| 👤 Utilisateur | `Mat` |
+| 🔒 Mot de passe | `211008` |
 
 ---
 
-## Variables d'environnement (optionnelles)
+## 🧩 Fonctionnalités
 
-Créez un fichier `.env` à la racine si vous voulez activer Spotify ou Gemini AI :
+| Module | Description |
+|---|---|
+| 🏠 **Dashboard** | Horloge, météo, Google, actualités, Spotify, notes, todo |
+| 🤖 **Lumy** | IA personnelle 100% locale — zéro API, zéro cloud |
+| 💡 **Maison** | Contrôle des appareils Google Home |
+| 🖥️ **Serveur** | Monitoring ZimaOS (CPU, RAM, stockage, uptime) |
+| ⏱️ **Pomodoro** | Focus timer avec compteur de sessions |
+| ✅ **Habitudes** | Suivi quotidien, streaks, progression |
+| 🧮 **Calculette** | Calculs rapides intégrés |
+| 🔧 **Outils** | Générateur mdp, base64, convertisseurs |
+| ⚙️ **Paramètres** | Comptes, Discord bot, Spotify |
+
+---
+
+## 🌐 Variables d'environnement
+
+Créez un `.env` à la racine pour activer les intégrations optionnelles :
 
 ```env
-SPOTIFY_CLIENT_ID=votre_client_id
-SPOTIFY_CLIENT_SECRET=votre_client_secret
+# 🎵 Spotify
+SPOTIFY_CLIENT_ID=
+SPOTIFY_CLIENT_SECRET=
 SPOTIFY_REDIRECT_URI=http://localhost:5000/api/spotify/callback
-GEMINI_API_KEY=votre_cle_api
+
+# 🤖 Gemini (optionnel, Lumy fonctionne sans)
+GEMINI_API_KEY=
 ```
 
 ---
 
-## Stack
+## 🛠️ Stack technique
 
-- **Frontend** — React 19 + TypeScript + Vite + Tailwind CSS v4
-- **Backend** — Express.js + tsx
-- **Animations** — Motion (Framer Motion)
-- **Données** — JSON local (`lumina_db.json`), pas de base de données externe
-- **IA (Lumy)** — Moteur de traitement local, zéro API externe
+```
+Frontend  →  React 19 + TypeScript + Vite + Tailwind CSS v4
+Backend   →  Express.js + tsx
+Animations →  Motion (Framer Motion)
+Stockage  →  lumina_db.json  (pas de base externe)
+IA (Lumy) →  Moteur local — 0 API externe
+```
+
+---
+
+<div align="center">
+
+**✦ Fait avec intention ✦**
+
+</div>

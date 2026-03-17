@@ -13,25 +13,36 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isBooting, setIsBooting] = useState(true);
 
-  return (
-    <div className="min-h-screen bg-[#060608] overflow-x-hidden relative font-sans">
-      {isBooting && <BootScreen onComplete={() => setIsBooting(false)} />}
+  if (isBooting) {
+    return <BootScreen onComplete={() => setIsBooting(false)} />;
+  }
 
-      {!isBooting && (
-        <>
-          <PetalBg />
-          <div className="relative z-10 min-h-screen flex flex-col">
-            {!currentUser ? (
-              <div className="flex-1 flex items-center justify-center p-4">
-                <LoginScreen onLogin={(user) => setCurrentUser(user)} />
-              </div>
-            ) : (
-              <div className="h-screen overflow-hidden">
-                <Dashboard currentUser={currentUser} onLogout={() => setCurrentUser(null)} />
-              </div>
-            )}
-          </div>
-        </>
+  return (
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      background: '#060608',
+      overflow: 'hidden',
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif",
+    }}>
+      <PetalBg />
+
+      {!currentUser ? (
+        <div style={{
+          position: 'relative',
+          zIndex: 10,
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '16px',
+        }}>
+          <LoginScreen onLogin={(user) => setCurrentUser(user)} />
+        </div>
+      ) : (
+        <div style={{ position: 'relative', zIndex: 10, height: '100%' }}>
+          <Dashboard currentUser={currentUser} onLogout={() => setCurrentUser(null)} />
+        </div>
       )}
     </div>
   );
