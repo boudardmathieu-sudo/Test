@@ -18,6 +18,14 @@ export default defineConfig(({mode}) => {
     server: {
       allowedHosts: true,
       hmr: process.env.DISABLE_HMR !== 'true',
+      watch: {
+        ignored: [
+          '**/.local/**',
+          '**/node_modules/**',
+          '**/lumina_db.json',
+          '**/.git/**',
+        ],
+      },
     },
   };
 });

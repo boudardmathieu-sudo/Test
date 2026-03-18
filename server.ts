@@ -565,12 +565,14 @@ async function startServer() {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 
-  // Vite middleware
+  // Vite middleware - shares the HTTP server for HMR WebSocket
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: {
         middlewareMode: true,
-        hmr: { server: httpServer },
+        hmr: process.env.DISABLE_HMR === 'true' ? false : {
+          server: httpServer,
+        },
       },
       appType: 'spa'
     });
