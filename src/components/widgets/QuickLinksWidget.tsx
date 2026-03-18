@@ -1,75 +1,131 @@
 import React, { useState, useEffect } from "react";
-import { Link as LinkIcon, Plus, Trash2, ExternalLink, Globe } from "lucide-react";
+import { Globe, Plus, Trash2, ExternalLink, X } from "lucide-react";
 import { GlassCard } from "../ui/GlassCard";
 import { User } from "../../App";
 
+interface Link { name: string; url: string; }
+
 export const QuickLinksWidget = ({ currentUser }: { currentUser: User }) => {
-  const [links, setLinks] = useState<{name: string, url: string}[]>(() => {
-    const saved = localStorage.getItem('lumina_quicklinks');
-    return saved ? JSON.parse(saved) : [
+  const [links, setLinks] = useState<Link[]>(() => {
+    const s = localStorage.getItem("lumina_quicklinks");
+    return s ? JSON.parse(s) : [
       { name: "Router", url: "http://192.168.1.1" },
       { name: "GitHub", url: "https://github.com" },
       { name: "YouTube", url: "https://youtube.com" },
-      { name: "Proxmox", url: "https://192.168.1.100:8006" }
+      { name: "Proxmox", url: "https://192.168.1.100:8006" },
     ];
   });
-  const [isAdding, setIsAdding] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newUrl, setNewUrl] = useState("");
+  const [adding, setAdding] = useState(false);
+  const [name, setName] = useState("");
+  const [url, setUrl] = useState("");
 
-  useEffect(() => {
-    localStorage.setItem('lumina_quicklinks', JSON.stringify(links));
-  }, [links]);
+  useEffect(() => { localStorage.setItem("lumina_quicklinks", JSON.stringify(links)); }, [links]);
 
-  const handleAdd = (e: React.FormEvent) => {
+  const add = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newName || !newUrl) return;
-    let finalUrl = newUrl;
-    if (!finalUrl.startsWith('http')) finalUrl = 'https://' + finalUrl;
-    setLinks([...links, { name: newName, url: finalUrl }]);
-    setNewName("");
-    setNewUrl("");
-    setIsAdding(false);
+    if (!name || !url) return;
+    const finalUrl = url.startsWith("http") ? url : "https://" + url;
+    setLinks([...links, { name, url: finalUrl }]);
+    setName(""); setUrl(""); setAdding(false);
   };
 
-  const removeLink = (index: number) => {
-    setLinks(links.filter((_, i) => i !== index));
-  };
+  const COLORS = ["#f43f5e", "#fbbf24", "#34d399", "#60a5fa", "#a78bfa", "#f472b6", "#fb923c", "#38bdf8"];
 
   return (
-    <GlassCard delay={0.5} className="flex flex-col">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <Globe className="w-6 h-6 text-blue-400" />
-          <h3 className="text-white font-medium text-lg">Raccourcis</h3>
+    <GlassCard delay={0.25}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <Globe style={{ width: 18, height: 18, color: "#60a5fa" }} />
+          <span style={{ fontSize: 15, fontWeight: 600, color: "white" }}>Raccourcis</span>
         </div>
-        {currentUser.role === 'admin' && (
-          <button onClick={() => setIsAdding(!isAdding)} className="p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors">
-            <Plus className="w-4 h-4" />
+        {currentUser.role === "admin" && (
+          <button
+            onClick={() => setAdding(!adding)}
+            style={{
+              background: adding ? "rgba(244,63,94,0.1)" : "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8,
+              padding: "5px 8px", color: adding ? "#f87171" : "#6b7280", cursor: "pointer",
+            }}
+          >
+            {adding ? <X style={{ width: 14, height: 14 }} /> : <Plus style={{ width: 14, height: 14 }} />}
           </button>
         )}
       </div>
 
-      {isAdding && currentUser.role === 'admin' && (
-        <form onSubmit={handleAdd} className="mb-4 flex flex-col gap-2">
-          <input type="text" placeholder="Nom (ex: NAS)" value={newName} onChange={e => setNewName(e.target.value)} className="bg-black/20 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white outline-none focus:border-blue-500/50" />
-          <input type="text" placeholder="URL (ex: 192.168.1.50)" value={newUrl} onChange={e => setNewUrl(e.target.value)} className="bg-black/20 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white outline-none focus:border-blue-500/50" />
-          <button type="submit" className="bg-blue-500/20 text-blue-300 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-500/30 transition-colors">Ajouter</button>
+      {/* Add form */}
+      {adding && (
+        <form onSubmit={add} style={{ marginBottom: 14, display: "flex", flexDirection: "column", gap: 8 }}>
+          <input
+            placeholder="Nom (ex: NAS)"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            style={{
+              background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 10, padding: "10px 12px", color: "white", fontSize: 13, outline: "none",
+            }}
+          />
+          <input
+            placeholder="URL (ex: 192.168.1.50)"
+            value={url}
+            onChange={e => setUrl(e.target.value)}
+            style={{
+              background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 10, padding: "10px 12px", color: "white", fontSize: 13, outline: "none",
+            }}
+          />
+          <button
+            type="submit"
+            style={{
+              background: "rgba(96,165,250,0.12)", border: "1px solid rgba(96,165,250,0.25)",
+              borderRadius: 10, padding: "10px", color: "#60a5fa", fontSize: 13, fontWeight: 500, cursor: "pointer",
+            }}
+          >
+            Ajouter
+          </button>
         </form>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 overflow-y-auto max-h-[220px] pr-1 custom-scrollbar">
+      {/* Links grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         {links.map((link, i) => (
-          <div key={i} className="group relative flex items-center justify-between bg-black/20 hover:bg-white/5 border border-white/5 rounded-xl p-3 transition-colors">
-            <a href={link.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 overflow-hidden flex-1">
-              <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
-                <ExternalLink className="w-3 h-3 text-gray-300" />
+          <div key={i} style={{ position: "relative", display: "flex", alignItems: "center" }}>
+            <a
+              href={link.url}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                flex: 1, display: "flex", alignItems: "center", gap: 10,
+                background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.06)",
+                borderRadius: 12, padding: "11px 12px",
+                textDecoration: "none", overflow: "hidden",
+              }}
+            >
+              <div style={{
+                width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+                background: COLORS[i % COLORS.length] + "18",
+                border: `1px solid ${COLORS[i % COLORS.length]}25`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <ExternalLink style={{ width: 13, height: 13, color: COLORS[i % COLORS.length] }} />
               </div>
-              <span className="text-sm text-gray-200 truncate">{link.name}</span>
+              <span style={{
+                fontSize: 13, fontWeight: 500, color: "#d1d5db",
+                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+              }}>
+                {link.name}
+              </span>
             </a>
-            {currentUser.role === 'admin' && (
-              <button onClick={() => removeLink(i)} className="absolute right-2 opacity-0 group-hover:opacity-100 p-1.5 text-rose-400 hover:bg-rose-500/20 rounded-lg transition-all bg-[#1a1a1a]">
-                <Trash2 className="w-3 h-3" />
+            {currentUser.role === "admin" && (
+              <button
+                onClick={() => setLinks(links.filter((_, j) => j !== i))}
+                style={{
+                  position: "absolute", top: -6, right: -6, width: 18, height: 18, borderRadius: "50%",
+                  background: "#1a1a1a", border: "1px solid rgba(244,63,94,0.3)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: "#f87171", cursor: "pointer", padding: 0,
+                }}
+              >
+                <X style={{ width: 10, height: 10 }} />
               </button>
             )}
           </div>

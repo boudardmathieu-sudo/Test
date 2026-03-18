@@ -1,79 +1,115 @@
 import React, { useState, useEffect } from "react";
-import { CheckSquare, Plus, Trash2, Circle, CheckCircle2 } from "lucide-react";
+import { CheckSquare, Plus, Trash2, CheckCircle2, Circle } from "lucide-react";
 import { GlassCard } from "../ui/GlassCard";
 
-interface Todo {
-  id: string;
-  text: string;
-  completed: boolean;
-}
+interface Todo { id: string; text: string; done: boolean; }
 
 export const TodoWidget = () => {
   const [todos, setTodos] = useState<Todo[]>(() => {
-    const saved = localStorage.getItem('lumina_todos');
-    return saved ? JSON.parse(saved) : [
-      { id: '1', text: 'Vérifier les logs du serveur', completed: false },
-      { id: '2', text: 'Mettre à jour LuminaOS', completed: true },
-      { id: '3', text: 'Sauvegarder la base de données', completed: false }
+    const s = localStorage.getItem("lumina_todos");
+    return s ? JSON.parse(s) : [
+      { id: "1", text: "Vérifier les logs du serveur", done: false },
+      { id: "2", text: "Mettre à jour LuminaOS", done: true },
     ];
   });
-  const [newTodo, setNewTodo] = useState("");
+  const [input, setInput] = useState("");
 
-  useEffect(() => {
-    localStorage.setItem('lumina_todos', JSON.stringify(todos));
-  }, [todos]);
+  useEffect(() => { localStorage.setItem("lumina_todos", JSON.stringify(todos)); }, [todos]);
 
-  const addTodo = (e: React.FormEvent) => {
+  const add = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTodo.trim()) return;
-    setTodos([{ id: Date.now().toString(), text: newTodo, completed: false }, ...todos]);
-    setNewTodo("");
+    if (!input.trim()) return;
+    setTodos([{ id: Date.now().toString(), text: input.trim(), done: false }, ...todos]);
+    setInput("");
   };
 
-  const toggleTodo = (id: string) => {
-    setTodos(todos.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
-  };
+  const toggle = (id: string) => setTodos(todos.map(t => t.id === id ? { ...t, done: !t.done } : t));
+  const del = (id: string) => setTodos(todos.filter(t => t.id !== id));
 
-  const deleteTodo = (id: string) => {
-    setTodos(todos.filter(t => t.id !== id));
-  };
+  const pending = todos.filter(t => !t.done).length;
 
   return (
-    <GlassCard delay={0.7} className="flex flex-col md:col-span-2">
-      <div className="flex items-center gap-3 mb-4">
-        <CheckSquare className="w-6 h-6 text-emerald-400" />
-        <h3 className="text-white font-medium text-lg">Tâches</h3>
+    <GlassCard delay={0.2} accent="none">
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <CheckSquare style={{ width: 18, height: 18, color: "#34d399" }} />
+          <span style={{ fontSize: 15, fontWeight: 600, color: "white" }}>Tâches</span>
+        </div>
+        {pending > 0 && (
+          <span style={{
+            fontSize: 11, fontWeight: 600, color: "#34d399",
+            background: "rgba(52,211,153,0.12)", border: "1px solid rgba(52,211,153,0.2)",
+            borderRadius: 99, padding: "2px 8px",
+          }}>
+            {pending} en cours
+          </span>
+        )}
       </div>
 
-      <form onSubmit={addTodo} className="mb-4 flex gap-2">
-        <input 
-          type="text" 
-          placeholder="Nouvelle tâche..." 
-          value={newTodo} 
-          onChange={e => setNewTodo(e.target.value)} 
-          className="flex-1 bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-sm text-white outline-none focus:border-emerald-500/50" 
+      {/* Add form */}
+      <form onSubmit={add} style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          placeholder="Nouvelle tâche…"
+          style={{
+            flex: 1, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 12, padding: "11px 14px", color: "white", fontSize: 14, outline: "none",
+          }}
+          onFocus={e => (e.target.style.borderColor = "rgba(52,211,153,0.4)")}
+          onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
         />
-        <button type="submit" disabled={!newTodo.trim()} className="bg-emerald-500/20 text-emerald-400 px-3 rounded-xl hover:bg-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-          <Plus className="w-5 h-5" />
+        <button
+          type="submit"
+          disabled={!input.trim()}
+          style={{
+            background: "rgba(52,211,153,0.12)", border: "1px solid rgba(52,211,153,0.2)",
+            borderRadius: 12, padding: "0 14px", color: "#34d399", cursor: "pointer",
+            opacity: input.trim() ? 1 : 0.4,
+          }}
+        >
+          <Plus style={{ width: 18, height: 18 }} />
         </button>
       </form>
 
-      <div className="space-y-2 overflow-y-auto max-h-[200px] pr-1 custom-scrollbar">
-        {todos.length === 0 ? (
-          <p className="text-center text-gray-500 text-sm py-4">Aucune tâche pour le moment.</p>
-        ) : (
-          todos.map(todo => (
-            <div key={todo.id} className={`group flex items-center justify-between p-3 rounded-xl border transition-all ${todo.completed ? 'bg-white/5 border-transparent' : 'bg-black/20 border-white/5 hover:border-white/10'}`}>
-              <div className="flex items-center gap-3 cursor-pointer flex-1" onClick={() => toggleTodo(todo.id)}>
-                {todo.completed ? <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" /> : <Circle className="w-5 h-5 text-gray-500 flex-shrink-0" />}
-                <span className={`text-sm transition-all ${todo.completed ? 'text-gray-500 line-through' : 'text-gray-200'}`}>{todo.text}</span>
-              </div>
-              <button onClick={() => deleteTodo(todo.id)} className="opacity-0 group-hover:opacity-100 p-1.5 text-rose-400 hover:bg-rose-500/20 rounded-lg transition-all ml-2">
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          ))
+      {/* List */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {todos.length === 0 && (
+          <p style={{ fontSize: 13, color: "#374151", textAlign: "center", padding: "12px 0" }}>
+            Aucune tâche
+          </p>
         )}
+        {todos.map(todo => (
+          <div
+            key={todo.id}
+            style={{
+              display: "flex", alignItems: "center", gap: 12,
+              background: "rgba(0,0,0,0.25)", borderRadius: 12, padding: "12px 14px",
+              border: `1px solid ${todo.done ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.06)"}`,
+            }}
+          >
+            <button onClick={() => toggle(todo.id)} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", flexShrink: 0 }}>
+              {todo.done
+                ? <CheckCircle2 style={{ width: 20, height: 20, color: "#34d399" }} />
+                : <Circle style={{ width: 20, height: 20, color: "#374151" }} />
+              }
+            </button>
+            <span style={{
+              flex: 1, fontSize: 14, lineHeight: 1.4,
+              color: todo.done ? "#374151" : "#e5e7eb",
+              textDecoration: todo.done ? "line-through" : "none",
+            }}>
+              {todo.text}
+            </span>
+            <button
+              onClick={() => del(todo.id)}
+              style={{ background: "none", border: "none", color: "#374151", cursor: "pointer", padding: 4, flexShrink: 0 }}
+            >
+              <Trash2 style={{ width: 14, height: 14 }} />
+            </button>
+          </div>
+        ))}
       </div>
     </GlassCard>
   );

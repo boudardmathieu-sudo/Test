@@ -41,7 +41,7 @@ export const GlassCard = ({ children, className = "", delay = 0, accent = "none"
         background: `linear-gradient(90deg, transparent, ${a.top}, transparent)`,
       }} />
 
-      <div style={{ position: 'relative', zIndex: 1, padding: noPad ? 0 : '18px 16px' }}>
+      <div style={{ position: 'relative', zIndex: 1, padding: noPad ? 0 : '20px 18px' }}>
         {children}
       </div>
     </motion.div>

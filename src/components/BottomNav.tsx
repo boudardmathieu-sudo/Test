@@ -1,14 +1,7 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { LayoutDashboard, Sparkles, Home, Server, Grid3X3 } from 'lucide-react';
-
-const TABS = [
-  { id: 'dashboard', icon: LayoutDashboard, label: 'Accueil',  color: '#f43f5e' },
-  { id: 'lumy',      icon: Sparkles,        label: 'Lumy',     color: '#fbbf24' },
-  { id: 'home',      icon: Home,            label: 'Maison',   color: '#a78bfa' },
-  { id: 'server',    icon: Server,          label: 'Serveur',  color: '#38bdf8' },
-  { id: '_menu',     icon: Grid3X3,         label: 'Plus',     color: '#94a3b8' },
-];
+import { motion } from 'motion/react';
+import { Grid2X2 } from 'lucide-react';
+import { LeafLogo } from './ui/LeafLogo';
 
 interface BottomNavProps {
   currentView: string;
@@ -16,69 +9,34 @@ interface BottomNavProps {
   onMenuOpen: () => void;
 }
 
-export const BottomNav = ({ currentView, onViewChange, onMenuOpen }: BottomNavProps) => {
+export const BottomNav = ({ onMenuOpen }: BottomNavProps) => {
   return (
     <div style={{
-      position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
-      background: 'rgba(8, 8, 14, 0.88)',
-      borderTop: '1px solid rgba(255,255,255,0.07)',
-      backdropFilter: 'blur(32px)',
-      WebkitBackdropFilter: 'blur(32px)',
-      paddingBottom: 'max(env(safe-area-inset-bottom), 8px)',
+      position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)',
+      zIndex: 50,
     }}>
-      <div style={{ display: 'flex', alignItems: 'stretch' }}>
-        {TABS.map((tab) => {
-          const isActive = currentView === tab.id;
-          const isMenu = tab.id === '_menu';
-          return (
-            <motion.button
-              key={tab.id}
-              whileTap={{ scale: 0.88 }}
-              onClick={() => isMenu ? onMenuOpen() : onViewChange(tab.id)}
-              style={{
-                flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-                justifyContent: 'center', gap: 4, padding: '12px 4px 10px',
-                background: 'none', border: 'none', cursor: 'pointer', position: 'relative',
-              }}
-            >
-              {/* Active pill indicator */}
-              <AnimatePresence>
-                {isActive && (
-                  <motion.div
-                    layoutId="nav-pill"
-                    initial={{ opacity: 0, scale: 0.7 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.7 }}
-                    transition={{ type: 'spring', stiffness: 420, damping: 30 }}
-                    style={{
-                      position: 'absolute', top: 8,
-                      width: 36, height: 36, borderRadius: 12,
-                      background: tab.color + '16',
-                      border: `1px solid ${tab.color}22`,
-                    }}
-                  />
-                )}
-              </AnimatePresence>
-
-              <tab.icon
-                style={{
-                  width: 20, height: 20, position: 'relative',
-                  color: isActive ? tab.color : '#374151',
-                  transition: 'color 0.2s',
-                }}
-              />
-              <span style={{
-                fontSize: 10, fontWeight: isActive ? 600 : 400,
-                color: isActive ? tab.color : '#374151',
-                letterSpacing: '0.01em', lineHeight: 1,
-                transition: 'color 0.2s',
-              }}>
-                {tab.label}
-              </span>
-            </motion.button>
-          );
-        })}
-      </div>
+      <motion.button
+        whileTap={{ scale: 0.92 }}
+        whileHover={{ scale: 1.04 }}
+        onClick={onMenuOpen}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '12px 22px 12px 16px',
+          borderRadius: 999,
+          background: 'rgba(13, 13, 18, 0.95)',
+          border: '1px solid rgba(244,63,94,0.25)',
+          cursor: 'pointer',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05), 0 0 24px rgba(244,63,94,0.12)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+        }}
+      >
+        <LeafLogo size={24} />
+        <span style={{ color: 'white', fontSize: 14, fontWeight: 600, letterSpacing: '-0.2px' }}>
+          Menu
+        </span>
+        <Grid2X2 style={{ width: 16, height: 16, color: '#6b7280' }} />
+      </motion.button>
     </div>
   );
 };
