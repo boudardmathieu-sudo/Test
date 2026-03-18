@@ -23,6 +23,16 @@
         "role": "friday",
         "content": "Message reçu, Mat, mais je n'ai pas su comment l'interpréter. Essayez de me poser une question directe — bilan du jour, conseil, rappel...",
         "ts": 1773763885993
+      },
+      {
+        "role": "user",
+        "content": "Aaa",
+        "ts": 1773772831987
+      },
+      {
+        "role": "friday",
+        "content": "Pouvez-vous reformuler ? Je peux vous aider avec votre productivité, vos habitudes, des rappels, ou naviguer dans le dashboard.",
+        "ts": 1773772831989
       }
     ]
   }
