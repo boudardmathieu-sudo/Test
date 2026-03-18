@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'motion/react';
-import { LeafLogoFalling } from './ui/LeafLogo';
+import { motion, AnimatePresence } from 'motion/react';
+import { NeonLeafFalling } from './ui/NeonLeaf';
 
-const TITLE = 'LuminaOS';
+const TITLE = 'Vibe Panel';
 
 const RING_R = 72;
 const RING_STROKE = 2.5;
@@ -185,7 +185,7 @@ export const BootScreen = ({ onComplete }: { onComplete: () => void }) => {
                 </defs>
               </svg>
 
-              {/* Leaf inside ring */}
+              {/* Neon Leaf inside ring */}
               <AnimatePresence>
                 {phase >= 1 && (
                   <motion.div
@@ -194,7 +194,7 @@ export const BootScreen = ({ onComplete }: { onComplete: () => void }) => {
                     transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
                     className="relative z-10"
                   >
-                    <LeafLogoFalling size={72} />
+                    <NeonLeafFalling size={72} />
                   </motion.div>
                 )}
               </AnimatePresence>

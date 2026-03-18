@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { Cpu, HardDrive, Activity, Server, Link as LinkIcon, Check, X, AlertTriangle } from "lucide-react";
+import { Cpu, HardDrive, Activity, Server, Link as LinkIcon, Check, X, TriangleAlert as AlertTriangle } from "lucide-react";
 import { GlassCard } from "../ui/GlassCard";
 import { User } from "../../App";
 
@@ -18,14 +18,20 @@ export const SystemStatsWidget = ({ currentUser }: { currentUser: User }) => {
   const [cpu, setCpu] = useState(12);
   const [ram, setRam] = useState(45);
   const [storage, setStorage] = useState({ used: 2.1, total: 4.0 });
-  const [zimaIp, setZimaIp] = useState("");
+  const [zimaIp, setZimaIp] = useState("192.168.1.25");
   const [connected, setConnected] = useState(false);
   const [showIp, setShowIp] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/config").then(r => r.json()).then(d => {
-      if (d?.zimaIp) { setZimaIp(d.zimaIp); setConnected(true); }
+      if (d?.zimaIp) {
+        setZimaIp(d.zimaIp);
+        setConnected(true);
+      } else {
+        // IP par défaut pour ZimaOS
+        setZimaIp("192.168.1.25");
+      }
     }).catch(() => {});
   }, []);
 

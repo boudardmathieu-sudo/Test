@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vibe Panel - Boot Animation Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #060608;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .boot-container {
+      position: relative;
+      text-align: center;
+    }
+
+    /* Logo Néon - Feuille qui tombe */
+    .neon-leaf {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 30px;
+      animation: leafFall 1.5s cubic-bezier(0.23, 1, 0.32, 1) forwards,
+                 leafFloat 3s ease-in-out 1.5s infinite;
+    }
+
+    @keyframes leafFall {
+      from {
+        transform: translateY(-200px) rotate(-45deg) scale(0.5);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0) rotate(0deg) scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes leafFloat {
+      0%, 100% {
+        transform: translateY(0) rotate(-4deg);
+      }
+      50% {
+        transform: translateY(8px) rotate(4deg);
+      }
+    }
+
+    /* Titre avec effet typewriter */
+    .title {
+      font-size: 48px;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -1px;
+      margin-bottom: 10px;
+      opacity: 0;
+      animation: fadeInUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) 0.8s forwards;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.3em;
+      opacity: 0;
+      animation: fadeInUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) 1.2s forwards;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Barre de progression */
+    .progress-container {
+      width: 300px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 999px;
+      margin: 40px auto 15px;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeIn 0.3s ease-out 1.5s forwards;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #00ff88, #00d4ff);
+      border-radius: 999px;
+      width: 0%;
+      animation: progressFill 1.5s ease-out 1.8s forwards;
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+    }
+
+    @keyframes progressFill {
+      to {
+        width: 100%;
+      }
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    .loading-text {
+      font-size: 11px;
+      color: #4b5563;
+      font-weight: 500;
+      opacity: 0;
+      animation: fadeIn 0.3s ease-out 1.8s forwards;
+    }
+
+    /* Effet de glow ambiant */
+    .glow-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0;
+      animation: glowPulse 2s ease-out 0.5s forwards;
+    }
+
+    .glow-orb-1 {
+      width: 400px;
+      height: 400px;
+      background: #00ff88;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .glow-orb-2 {
+      width: 300px;
+      height: 300px;
+      background: #00d4ff;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: 0.7s;
+    }
+
+    @keyframes glowPulse {
+      to {
+        opacity: 0.08;
+      }
+    }
+
+    /* Fade out final */
+    .boot-container.complete {
+      animation: fadeOut 0.8s ease-out 3.5s forwards;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        transform: scale(1.05);
+        filter: blur(20px);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Glows d'ambiance -->
+  <div class="glow-bg">
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+  </div>
+
+  <div class="boot-container">
+    <!-- Logo SVG Néon -->
+    <div class="neon-leaf">
+      <svg width="120" height="120" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Filtre néon -->
+          <filter id="neon-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur1" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur2" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur3" />
+            <feMerge>
+              <feMergeNode in="blur3" />
+              <feMergeNode in="blur2" />
+              <feMergeNode in="blur1" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+
+          <!-- Gradient vert néon -->
+          <linearGradient id="neon-gradient" x1="10" y1="10" x2="70" y2="85" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#00ff88" />
+            <stop offset="50%" stop-color="#00ff66" />
+            <stop offset="100%" stop-color="#00cc55" />
+          </linearGradient>
+        </defs>
+
+        <!-- Halo de glow -->
+        <ellipse cx="40" cy="50" rx="25" ry="30" fill="#00ff88" opacity="0.15" style="filter: blur(12px);" />
+
+        <!-- Contour principal - TRANSPARENT -->
+        <path
+          d="M40 10 C40 10 70 25 70 50 C70 65 58 80 40 85 C22 80 10 65 10 50 C10 25 40 10 40 10Z"
+          fill="none"
+          stroke="url(#neon-gradient)"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          filter="url(#neon-glow)"
+        />
+
+        <!-- Nervure centrale -->
+        <path
+          d="M40 85 L40 30"
+          fill="none"
+          stroke="#00ff88"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-opacity="0.8"
+          filter="url(#neon-glow)"
+        />
+
+        <!-- Nervures gauches -->
+        <path d="M40 40 C32 37 24 38 18 42" fill="none" stroke="#00ff88" stroke-width="1" stroke-linecap="round" stroke-opacity="0.6" filter="url(#neon-glow)" />
+        <path d="M40 52 C32 49 22 50 15 55" fill="none" stroke="#00ff88" stroke-width="0.9" stroke-linecap="round" stroke-opacity="0.5" filter="url(#neon-glow)" />
+        <path d="M40 65 C33 62 26 63 21 66" fill="none" stroke="#00ff88" stroke-width="0.8" stroke-linecap="round" stroke-opacity="0.4" filter="url(#neon-glow)" />
+
+        <!-- Nervures droites -->
+        <path d="M40 40 C48 37 56 38 62 42" fill="none" stroke="#00ff88" stroke-width="1" stroke-linecap="round" stroke-opacity="0.6" filter="url(#neon-glow)" />
+        <path d="M40 52 C48 49 58 50 65 55" fill="none" stroke="#00ff88" stroke-width="0.9" stroke-linecap="round" stroke-opacity="0.5" filter="url(#neon-glow)" />
+        <path d="M40 65 C47 62 54 63 59 66" fill="none" stroke="#00ff88" stroke-width="0.8" stroke-linecap="round" stroke-opacity="0.4" filter="url(#neon-glow)" />
+
+        <!-- Tige -->
+        <path d="M40 85 L40 95" fill="none" stroke="#00ff88" stroke-width="2" stroke-linecap="round" filter="url(#neon-glow)" />
+      </svg>
+    </div>
+
+    <!-- Titre -->
+    <div class="title">Vibe Panel</div>
+    <div class="subtitle">Personal Dashboard</div>
+
+    <!-- Barre de progression -->
+    <div class="progress-container">
+      <div class="progress-bar"></div>
+    </div>
+    <div class="loading-text">Initialisation du système...</div>
+  </div>
+
+  <script>
+    // Fade out complet après 3 secondes
+    setTimeout(() => {
+      document.querySelector('.boot-container').classList.add('complete');
+
+      // Redirection optionnelle après l'animation
+      setTimeout(() => {
+        // window.location.href = '/';
+        console.log('Animation terminée');
+      }, 800);
+    }, 3500);
+  </script>
+
+</body>
+</html>

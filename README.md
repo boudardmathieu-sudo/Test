@@ -1,8 +1,8 @@
 <div align="center">
 
-# 🍂 LuminaOS
+# 🍃 Vibe Panel
 
-### *Ton espace de contrôle personnel — sombre, rapide, offline-first.*
+### *Ton espace de contrôle personnel — moderne, rapide, intuitif.*
 
 <br/>
 
@@ -12,33 +12,27 @@
   <img src="https://img.shields.io/badge/Vite-6-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
   <img src="https://img.shields.io/badge/Express-4-000000?style=for-the-badge&logo=express&logoColor=white" />
   <img src="https://img.shields.io/badge/Tailwind-v4-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white" />
-  <img src="https://img.shields.io/badge/IA-100%25%20Locale-f43f5e?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Discord.js-14-5865F2?style=for-the-badge&logo=discord&logoColor=white" />
 </p>
 
 <br/>
 
-> **LuminaOS** est un dashboard personnel complet — pensé comme un vrai système d'exploitation personnel. Boot screen, login, modules, IA locale, contrôle domotique, monitoring serveur. Tout ça, en local, sans cloud, sans abonnement.
+> **Vibe Panel** est un dashboard personnel ultra-moderne, pensé pour centraliser tous tes services en un seul endroit. Contrôle ta musique Spotify, gère ton bot Discord, monitore ton serveur ZimaOS, et bien plus encore.
 
 </div>
 
 ---
 
-## 🚀 Démarrage rapide
+## 🚀 Présentation de Vibe Panel
 
-```bash
-# Cloner et installer
-npm install
+Vibe Panel est bien plus qu'un simple dashboard — c'est ton centre de commande personnel. Conçu avec une architecture moderne et une interface élégante en Glassmorphism/Néon, il combine puissance et esthétique.
 
-# Lancer le serveur (frontend + backend en un seul processus)
-npm run dev
-```
-
-> 🌐 Accessible sur **[http://localhost:5000](http://localhost:5000)**
-
-```bash
-# Production
-npm run build
-```
+**Pourquoi Vibe Panel ?**
+- Interface moderne avec effets visuels néon et glassmorphism
+- Animation de démarrage fluide avec logo SVG animé
+- Intégration complète de tes services favoris
+- Architecture modulaire et extensible
+- 100% open-source et personnalisable
 
 ---
 
@@ -54,34 +48,67 @@ npm run build
 
 ---
 
-## 🧩 Modules
+## ✨ Fonctionnalités
 
-| Module | Icône | Description |
-|--------|-------|-------------|
-| **Dashboard** | 🏠 | Vue d'ensemble — horloge, météo, Google, actualités, Spotify, notes, todo |
-| **Lumy** | 🤖 | IA personnelle 100% locale — zéro API externe, zéro cloud |
-| **Maison** | 💡 | Contrôle des appareils Google Home |
-| **Serveur** | 🖥️ | Monitoring ZimaOS — CPU, RAM, stockage, uptime, réseau |
-| **Pomodoro** | ⏱️ | Timer de concentration avec compteur de sessions |
-| **Habitudes** | ✅ | Suivi quotidien, streaks, progression visuelle |
-| **Calculette** | 🧮 | Calculatrice rapide intégrée |
-| **Outils** | 🔧 | Générateur de mots de passe, encodeur base64, convertisseurs |
-| **Paramètres** | ⚙️ | Gestion des comptes, intégration Discord bot, Spotify OAuth |
+### 🎵 Widget Spotify
+Affiche en temps réel la musique que tu écoutes. Contrôle ta lecture directement depuis le panel.
+
+| Fonctionnalité | Description |
+|----------------|-------------|
+| 🎧 Lecture en cours | Affiche le titre, l'artiste et la pochette |
+| ⏯️ Contrôles | Play, Pause, Suivant, Précédent |
+| 🔗 Intégration API | Connexion via OAuth Spotify |
+
+### 💬 Widget Discord
+Envoie des messages directement depuis le panel via Webhook Discord. Le bot Discord inclus offre des commandes personnalisées.
+
+| Fonctionnalité | Description |
+|----------------|-------------|
+| 📤 Envoi de messages | Webhook Discord intégré |
+| 🤖 Bot Discord | Système de commandes complet |
+| 📊 Statistiques | Nombre de serveurs, statut du bot |
+
+### 🖥️ Widget ZimaOS
+Monitore ton serveur ZimaOS en temps réel avec des graphiques dynamiques.
+
+| Métrique | Description |
+|----------|-------------|
+| 📈 CPU | Utilisation du processeur en temps réel |
+| 💾 RAM | Mémoire vive utilisée/disponible |
+| 💿 Stockage | Espace disque utilisé/total |
+| 🌐 Réseau | Statistiques réseau |
+
+### 🛠️ Widgets Utilitaires
+
+- **⏰ Horloge Dynamique** : Heure locale avec fuseaux horaires multiples
+- **📝 Bloc-notes Rapide** : Prise de notes instantanée avec sauvegarde auto
+- **🔗 Liens Rapides** : Accès direct à tes services favoris
+- **📰 Flux d'Actualités** : Dernières news en temps réel
+- **✅ Liste de Tâches** : Gestionnaire de tâches intégré
+- **🌐 Moniteur Réseau** : Ping, vitesse de téléchargement/upload
 
 ---
 
-## 🧠 Philosophie
+## ⚙️ Prérequis
 
-> *"Tes données t'appartiennent."*
+Avant de commencer, assure-toi d'avoir installé :
 
-LuminaOS est né d'une conviction simple : un dashboard personnel ne devrait jamais dépendre d'un service tiers.
+| Outil | Version Minimum | Installation |
+|-------|-----------------|--------------|
+| **Node.js** | v18.0.0 | [Télécharger](https://nodejs.org) |
+| **npm** | v9.0.0 | Inclus avec Node.js |
+| **Git** | Latest | [Télécharger](https://git-scm.com) |
 
-- 🔒 **Aucune donnée** envoyée vers un serveur externe
-- 🌐 **Fonctionne hors-ligne** (sauf widgets météo/actualités)
-- 🤖 **Lumy tourne en local** — sans clé API, sans abonnement
-- 💾 **Stockage JSON local** uniquement — léger, portable, transparent
-- ⚡ **Interface rapide** — dark mode natif, conçue pour un usage quotidien
-- 📱 **Responsive** — optimisé mobile et desktop
+### Configuration Réseau
+
+- **IP ZimaOS** : `192.168.1.25` (modifiable dans les paramètres)
+- **Port du Panel** : `5000` (par défaut)
+
+### Comptes Requis (Optionnels)
+
+- Compte Spotify Developer pour l'intégration musicale
+- Application Discord pour le bot
+- Webhook Discord pour l'envoi de messages
 
 ---
 
@@ -122,86 +149,219 @@ LuminaOS est né d'une conviction simple : un dashboard personnel ne devrait jam
 
 ---
 
-## 🌍 Variables d'environnement
+## 🛠️ Installation & Lancement
 
-Copier `.env.example` vers `.env` et remplir selon les besoins :
+### 1️⃣ Cloner le Projet
+
+```bash
+git clone https://github.com/boudardmathieu-sudo/Test.git
+cd Test
+```
+
+### 2️⃣ Installer les Dépendances
+
+```bash
+npm install
+```
+
+### 3️⃣ Configuration de l'Environnement
+
+Copie le fichier `.env.example` vers `.env` et remplis les variables :
 
 ```env
-# IA Gemini (optionnel — Lumy fonctionne sans)
-GEMINI_API_KEY=
-
-# Spotify (pour le widget lecteur)
-SPOTIFY_CLIENT_ID=
-SPOTIFY_CLIENT_SECRET=
+# Spotify (Optionnel)
+SPOTIFY_CLIENT_ID=ton_client_id_spotify
+SPOTIFY_CLIENT_SECRET=ton_client_secret_spotify
 SPOTIFY_REDIRECT_URI=http://localhost:5000/api/spotify/callback
 
-# Google Home (pour la domotique)
-VITE_GOOGLE_CLIENT_ID=
+# Google Home (Optionnel)
+VITE_GOOGLE_CLIENT_ID=ton_google_client_id
+
+# Discord Bot
+DISCORD_BOT_TOKEN=ton_token_discord
+DISCORD_WEBHOOK_URL=ton_webhook_url
 ```
 
-> 💡 **Aucune variable n'est obligatoire** — le dashboard démarre et fonctionne sans elles. Les widgets concernés affichent simplement un message de configuration.
+### 4️⃣ Lancer le Panel
+
+```bash
+# Mode développement
+npm run dev
+
+# Mode production
+npm run build
+npm start
+```
+
+Le panel sera accessible sur **[http://localhost:5000](http://localhost:5000)**
 
 ---
 
-## 📱 Navigation
+## 🤖 Configuration du Bot Discord
 
-**Desktop** — Sidebar fixe à gauche avec tous les modules.
+### Création de l'Application Discord
 
-**Mobile** — Barre de navigation en bas avec accès rapide aux 4 modules principaux (Dashboard, Lumy, Maison, Serveur) + bouton "Plus" pour accéder à tous les modules via le menu plein écran.
+1. Visite le [Discord Developer Portal](https://discord.com/developers/applications)
+2. Clique sur **"New Application"**
+3. Donne un nom à ton bot (ex: "Vibe Bot")
+4. Va dans l'onglet **"Bot"** et clique sur **"Add Bot"**
+5. Active les **Privileged Gateway Intents** :
+   - ✅ Presence Intent
+   - ✅ Server Members Intent
+   - ✅ Message Content Intent
+6. Copie le **Token** et ajoute-le dans `.env`
+
+### Invitation du Bot
+
+Génère le lien d'invitation avec les permissions requises :
+
+```
+https://discord.com/api/oauth2/authorize?client_id=TON_CLIENT_ID&permissions=8&scope=bot%20applications.commands
+```
+
+Remplace `TON_CLIENT_ID` par l'ID de ton application.
+
+### Lancement du Bot
+
+Le bot se lance automatiquement avec le panel, mais tu peux aussi le lancer séparément :
+
+```bash
+node bot.js
+```
+
+### Commandes Disponibles
+
+| Commande | Description | Exemple |
+|----------|-------------|---------|
+| `/ping` | Vérifie la latence du bot | `/ping` |
+| `/status` | Affiche les statistiques | `/status` |
+| `/help` | Liste toutes les commandes | `/help` |
+| `/panel` | Affiche le lien du panel | `/panel` |
 
 ---
 
-## 📂 Structure du projet
+## 📁 Structure du Projet
 
 ```
-lumina-os/
-├── 📄 server.ts              # Express + Vite — serveur unifié (port 5000)
-├── 📄 lumina_db.json         # Base de données locale (auto-créée)
-├── 📄 vite.config.ts         # Config Vite
+vibe-panel/
+├── 📄 server.ts              # Serveur Express + Vite unifié
+├── 📄 bot.js                 # Bot Discord complet
+├── 📄 lumina_db.json         # Base de données locale
+├── 📄 vite.config.ts         # Configuration Vite
 ├── src/
-│   ├── 📄 App.tsx            # Racine — BootScreen → Login → Dashboard
+│   ├── 📄 App.tsx            # Composant principal
 │   ├── 📄 main.tsx           # Point d'entrée React
 │   ├── 📄 index.css          # Styles globaux
 │   └── components/
 │       ├── 📄 BootScreen.tsx      # Animation de démarrage
 │       ├── 📄 LoginScreen.tsx     # Écran de connexion
-│       ├── 📄 Dashboard.tsx       # Shell principal du dashboard
-│       ├── 📄 Sidebar.tsx         # Navigation desktop
-│       ├── 📄 BottomNav.tsx       # Navigation mobile (barre du bas)
-│       ├── 📄 FullScreenMenu.tsx  # Menu plein écran mobile
+│       ├── 📄 Dashboard.tsx       # Dashboard principal
 │       ├── ui/
-│       │   ├── 📄 GlassCard.tsx   # Carte en verre réutilisable
-│       │   ├── 📄 LeafLogo.tsx    # Logo feuille animée
+│       │   ├── 📄 GlassCard.tsx   # Composant carte glassmorphism
+│       │   ├── 📄 NeonLeaf.tsx    # Logo feuille néon
 │       │   └── 📄 PetalBg.tsx     # Fond animé
-│       └── widgets/               # 16 widgets modulaires
-│           ├── ClockWidget.tsx
-│           ├── WeatherWidget.tsx
+│       └── widgets/               # Tous les widgets
 │           ├── SpotifyWidget.tsx
-│           ├── FridayWidget.tsx   # Lumy IA
+│           ├── DiscordWidget.tsx
+│           ├── ZimaOSWidget.tsx
 │           └── ...
+└── package.json
 ```
 
 ---
 
-## ✨ Fonctionnalités clés
+## 🎨 Personnalisation
 
-- **🍂 Logo animé** — feuille qui tombe et se balance en permanence
-- **🎬 Boot screen** — animation élégante au démarrage avec particules
-- **🔐 Système de login** — multi-comptes avec rôles (admin/user)
-- **📊 Dashboard** — widgets modulaires personnalisables
-- **🤖 Lumy** — IA conversationnelle 100% locale avec mémoire persistante
-- **🏠 Domotique** — contrôle Google Home intégré
-- **🖥️ Monitoring** — stats temps réel ZimaOS (CPU, RAM, disque, réseau)
-- **🎵 Spotify** — lecteur intégré avec OAuth
-- **🤖 Discord** — statut du bot et commandes
-- **📱 Mobile-first** — barre de navigation bottom, touch-friendly
+### Thème et Couleurs
+
+Modifie les couleurs dans `src/index.css` :
+
+```css
+:root {
+  --neon-green: #00ff88;
+  --neon-blue: #00d4ff;
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+```
+
+### Widgets Personnalisés
+
+Crée un nouveau widget dans `src/components/widgets/` :
+
+```typescript
+import { GlassCard } from '../ui/GlassCard';
+
+export const MonWidget = () => {
+  return (
+    <GlassCard>
+      {/* Ton contenu ici */}
+    </GlassCard>
+  );
+};
+```
+
+---
+
+## 🐛 Dépannage
+
+### Le panel ne démarre pas
+
+```bash
+# Nettoie le cache et réinstalle
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### Le bot Discord ne se connecte pas
+
+- Vérifie que le token est correct dans `.env`
+- Assure-toi que les intents sont activés
+- Vérifie les logs avec `node bot.js`
+
+### ZimaOS injoignable
+
+- Vérifie que l'IP `192.168.1.25` est correcte
+- Assure-toi d'être sur le même réseau
+- Teste la connexion : `ping 192.168.1.25`
+
+---
+
+## 🤝 Contribution
+
+Les contributions sont les bienvenues ! N'hésite pas à :
+
+1. Fork le projet
+2. Créer une branche (`git checkout -b feature/AmazingFeature`)
+3. Commit tes changements (`git commit -m 'Add AmazingFeature'`)
+4. Push sur la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrir une Pull Request
+
+---
+
+## 📝 Licence
+
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
+
+---
+
+## 🌟 Remerciements
+
+- **React Team** pour le framework
+- **Discord.js** pour la bibliothèque Discord
+- **Spotify** pour l'API musicale
+- **Communauté Open Source** pour l'inspiration
 
 ---
 
 <div align="center">
 
-**🍂 Conçu avec intention, fait pour durer. 🍂**
+**🍃 Conçu avec passion. Fait pour durer. 🍃**
 
-*LuminaOS — v2.0.4-stable*
+*Vibe Panel — v2.1.0-neon*
+
+<br/>
+
+[⬆ Retour en haut](#-vibe-panel)
 
 </div>

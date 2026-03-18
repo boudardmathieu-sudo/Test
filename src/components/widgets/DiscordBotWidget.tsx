@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { MessageSquare, Send, Activity, Server, AlertTriangle } from "lucide-react";
+import { MessageSquare, Send, Activity, Server, TriangleAlert as AlertTriangle } from "lucide-react";
 import { GlassCard } from "../ui/GlassCard";
 
 export const DiscordBotWidget = () => {
@@ -46,8 +46,8 @@ export const DiscordBotWidget = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           content: message,
-          username: botData?.username || "LuminaOS Panel",
-          avatar_url: botData?.avatar || "https://ui-avatars.com/api/?name=Lumina+OS&background=f43f5e&color=fff"
+          username: botData?.username || "Vibe Panel",
+          avatar_url: botData?.avatar || "https://ui-avatars.com/api/?name=Vibe+Panel&background=00ff88&color=000"
         })
       });
 

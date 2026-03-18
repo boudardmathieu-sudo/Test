@@ -8,7 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "bot": "node bot.js",
+    "start:all": "concurrently \"npm run dev\" \"npm run bot\""
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
@@ -21,7 +23,9 @@
     "express": "^4.21.2",
     "dotenv": "^17.2.3",
     "better-sqlite3": "^12.4.1",
-    "motion": "^12.23.24"
+    "motion": "^12.23.24",
+    "discord.js": "^14.14.1",
+    "concurrently": "^8.2.2"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
