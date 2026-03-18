@@ -1,8 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import {
-  LayoutDashboard, Sparkles, Home, Server,
-  Timer, Calculator, CheckSquare, Wrench, Settings, Menu
+  LayoutDashboard, Sparkles, Home, Server, Menu
 } from 'lucide-react';
 
 const PRIMARY_ITEMS = [
@@ -23,73 +22,129 @@ export const BottomNav = ({ currentView, onViewChange, onMenuOpen }: BottomNavPr
 
   return (
     <div
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40"
       style={{
-        background: 'rgba(8, 8, 14, 0.92)',
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 40,
+        background: 'rgba(6, 6, 10, 0.94)',
         borderTop: '1px solid rgba(255,255,255,0.06)',
-        backdropFilter: 'blur(20px)',
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        backdropFilter: 'blur(24px)',
+        paddingBottom: 'env(safe-area-inset-bottom, 8px)',
       }}
     >
-      <div className="flex items-center justify-around px-2 py-2">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '8px 8px 4px' }}>
         {PRIMARY_ITEMS.map((item) => {
           const isActive = currentView === item.id;
           return (
             <motion.button
               key={item.id}
               onClick={() => onViewChange(item.id)}
-              whileTap={{ scale: 0.88 }}
-              className="relative flex flex-col items-center gap-1 px-3 py-2 rounded-2xl cursor-pointer transition-all"
+              whileTap={{ scale: 0.85 }}
               style={{
-                background: isActive ? item.color + '15' : 'transparent',
-                minWidth: 56,
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 5,
+                padding: '10px 16px 8px',
+                borderRadius: 16,
+                border: 'none',
+                background: isActive ? item.color + '14' : 'transparent',
+                cursor: 'pointer',
+                transition: 'background 0.2s',
+                minWidth: 60,
               }}
             >
               {isActive && (
                 <motion.div
-                  layoutId="bottom-nav-active"
-                  className="absolute inset-0 rounded-2xl"
-                  style={{ border: `1px solid ${item.color}25` }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  layoutId="bnav-pill"
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: 16,
+                    border: `1px solid ${item.color}22`,
+                  }}
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                 />
               )}
+
+              {/* Active dot above icon */}
+              {isActive && (
+                <motion.div
+                  layoutId="bnav-dot"
+                  style={{
+                    position: 'absolute',
+                    top: 5,
+                    width: 4,
+                    height: 4,
+                    borderRadius: '50%',
+                    background: item.color,
+                    boxShadow: `0 0 8px ${item.color}`,
+                  }}
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                />
+              )}
+
               <item.icon
-                className="relative w-5 h-5"
-                style={{ color: isActive ? item.color : '#4b5563' }}
+                style={{
+                  width: 22,
+                  height: 22,
+                  color: isActive ? item.color : '#374151',
+                  transition: 'color 0.2s',
+                  position: 'relative',
+                }}
               />
               <span
-                className="relative text-[10px] font-medium leading-none"
-                style={{ color: isActive ? item.color : '#4b5563' }}
+                style={{
+                  fontSize: 10,
+                  fontWeight: isActive ? 600 : 400,
+                  color: isActive ? item.color : '#374151',
+                  transition: 'color 0.2s',
+                  letterSpacing: '0.02em',
+                  position: 'relative',
+                  lineHeight: 1,
+                }}
               >
                 {item.label}
               </span>
-              {isActive && (
-                <motion.div
-                  layoutId="bottom-nav-dot"
-                  className="absolute -top-0.5 w-1 h-1 rounded-full"
-                  style={{ background: item.color, boxShadow: `0 0 6px ${item.color}` }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                />
-              )}
             </motion.button>
           );
         })}
 
-        {/* Menu button — shows current non-primary view or "+" */}
+        {/* More / Menu */}
         <motion.button
           onClick={onMenuOpen}
-          whileTap={{ scale: 0.88 }}
-          className="relative flex flex-col items-center gap-1 px-3 py-2 rounded-2xl cursor-pointer transition-all"
+          whileTap={{ scale: 0.85 }}
           style={{
-            background: !isPrimaryView ? 'rgba(244,63,94,0.12)' : 'transparent',
-            minWidth: 56,
-            border: !isPrimaryView ? '1px solid rgba(244,63,94,0.2)' : '1px solid transparent',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 5,
+            padding: '10px 16px 8px',
+            borderRadius: 16,
+            border: !isPrimaryView ? '1px solid rgba(244,63,94,0.2)' : 'none',
+            background: !isPrimaryView ? 'rgba(244,63,94,0.1)' : 'transparent',
+            cursor: 'pointer',
+            minWidth: 60,
           }}
         >
-          <Menu className="w-5 h-5" style={{ color: !isPrimaryView ? '#f43f5e' : '#4b5563' }} />
+          <Menu
+            style={{
+              width: 22,
+              height: 22,
+              color: !isPrimaryView ? '#f43f5e' : '#374151',
+            }}
+          />
           <span
-            className="text-[10px] font-medium leading-none"
-            style={{ color: !isPrimaryView ? '#f43f5e' : '#4b5563' }}
+            style={{
+              fontSize: 10,
+              fontWeight: !isPrimaryView ? 600 : 400,
+              color: !isPrimaryView ? '#f43f5e' : '#374151',
+              letterSpacing: '0.02em',
+              lineHeight: 1,
+            }}
           >
             Plus
           </span>

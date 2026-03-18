@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sparkles, PanelLeft } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { ClockWidget } from "./widgets/ClockWidget";
 import { WeatherWidget } from "./widgets/WeatherWidget";
 import { SystemStatsWidget } from "./widgets/SystemStatsWidget";
@@ -20,20 +20,19 @@ import { HabitWidget } from "./widgets/HabitWidget";
 import { ToolsWidget } from "./widgets/ToolsWidget";
 import { FridayWidget } from "./widgets/FridayWidget";
 import { FullScreenMenu } from "./FullScreenMenu";
-import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
 import { User } from "../App";
 
 const VIEW_META: Record<string, { title: string; subtitle: string }> = {
   dashboard:  { title: "Dashboard",        subtitle: "Aperçu de votre système" },
-  server:     { title: "Serveur & Réseau",  subtitle: "Performances de l'infrastructure" },
-  home:       { title: "Maison Connectée", subtitle: "Contrôle des appareils" },
-  settings:   { title: "Paramètres",       subtitle: "Préférences et utilisateurs" },
-  pomodoro:   { title: "Pomodoro",         subtitle: "Technique de concentration" },
+  server:     { title: "Serveur & Réseau",  subtitle: "Infrastructure" },
+  home:       { title: "Maison Connectée", subtitle: "Appareils connectés" },
+  settings:   { title: "Paramètres",       subtitle: "Préférences" },
+  pomodoro:   { title: "Pomodoro",         subtitle: "Focus & concentration" },
   calculator: { title: "Calculette",       subtitle: "Calculs rapides" },
   habits:     { title: "Habitudes",        subtitle: "Suivi journalier" },
-  tools:      { title: "Boîte à outils",   subtitle: "Utilitaires pratiques" },
-  lumy:       { title: "Lumy",             subtitle: "Intelligence personnelle — 100% locale" },
+  tools:      { title: "Outils",           subtitle: "Utilitaires" },
+  lumy:       { title: "Lumy",             subtitle: "IA locale · Sans cloud" },
 };
 
 const getGreeting = () => {
@@ -46,27 +45,14 @@ const getGreeting = () => {
 export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogout: () => void }) => {
   const [currentView, setCurrentView] = useState("dashboard");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const meta = VIEW_META[currentView] ?? VIEW_META.dashboard;
-
-  // Ctrl+B keyboard shortcut to toggle sidebar on PC
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'b') {
-        e.preventDefault();
-        setSidebarOpen(prev => !prev);
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, []);
 
   const renderContent = () => {
     switch (currentView) {
       case "dashboard":
         return (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
+          <div className="flex flex-col gap-4">
             <ClockWidget />
             <WeatherWidget />
             <GoogleSearchWidget />
@@ -79,36 +65,28 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
         );
       case "server":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+          <div className="flex flex-col gap-4">
             <SystemStatsWidget currentUser={currentUser} />
             <NetworkMonitorWidget />
           </div>
         );
       case "home":
-        return (
-          <div className="max-w-2xl mx-auto w-full">
-            <SmartHomeWidget currentUser={currentUser} />
-          </div>
-        );
+        return <SmartHomeWidget currentUser={currentUser} />;
       case "settings":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+          <div className="flex flex-col gap-4">
             <SettingsWidget currentUser={currentUser} />
             {currentUser.role === "admin" && <DiscordBotWidget />}
           </div>
         );
-      case "pomodoro":
-        return <div className="flex justify-center"><PomodoroWidget /></div>;
-      case "calculator":
-        return <div className="flex justify-center"><CalculatorWidget /></div>;
-      case "habits":
-        return <div className="w-full max-w-2xl mx-auto"><HabitWidget /></div>;
-      case "tools":
-        return <div className="w-full"><ToolsWidget /></div>;
+      case "pomodoro":   return <PomodoroWidget />;
+      case "calculator": return <CalculatorWidget />;
+      case "habits":     return <HabitWidget />;
+      case "tools":      return <ToolsWidget />;
       case "lumy":
         return (
-          <div className="h-full">
-            <FridayWidget userName={currentUser.username} onNavigate={(view) => setCurrentView(view)} />
+          <div style={{ height: '100%' }}>
+            <FridayWidget userName={currentUser.username} onNavigate={setCurrentView} />
           </div>
         );
       default: return null;
@@ -116,9 +94,9 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
   };
 
   return (
-    <div style={{ display: 'flex', height: '100dvh', width: '100%', overflow: 'hidden', background: '#060608', position: 'relative' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', width: '100%', overflow: 'hidden', background: '#060608' }}>
 
-      {/* Full screen menu (mobile only) */}
+      {/* Full screen navigation menu */}
       <FullScreenMenu
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
@@ -128,122 +106,87 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
         userName={currentUser.username}
       />
 
-      {/* Sidebar overlay backdrop (desktop) */}
-      <AnimatePresence>
-        {sidebarOpen && (
+      {/* Header */}
+      <motion.header
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
+        style={{
+          flexShrink: 0,
+          padding: '20px 20px 16px',
+          borderBottom: '1px solid rgba(255,255,255,0.04)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+        }}
+      >
+        <AnimatePresence mode="wait">
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => setSidebarOpen(false)}
-            className="hidden md:block fixed inset-0 z-30 bg-black/40 backdrop-blur-sm"
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Sidebar — slides in as overlay on desktop */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <motion.div
-            initial={{ x: -240, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -240, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 320, damping: 34 }}
-            className="hidden md:flex fixed top-0 left-0 h-full z-40 shadow-2xl"
+            key={currentView}
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.18 }}
           >
-            <Sidebar
-              currentView={currentView}
-              onViewChange={(v) => { setCurrentView(v); setSidebarOpen(false); }}
-              onLogout={onLogout}
-            />
+            <h2 style={{ fontSize: 20, fontWeight: 600, color: 'white', margin: 0, letterSpacing: '-0.3px' }}>
+              {currentView === "dashboard"
+                ? `${getGreeting()}, ${currentUser.username}`
+                : currentView === "lumy"
+                ? <><span style={{ color: '#fbbf24' }}>Lumy</span></>
+                : meta.title}
+            </h2>
+            <p style={{ fontSize: 12, color: '#4b5563', margin: '3px 0 0', lineHeight: 1 }}>
+              {currentView === "dashboard"
+                ? new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })
+                : meta.subtitle}
+            </p>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>
 
-      {/* Main content */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-
-        {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-          className="flex-shrink-0 px-4 pt-4 pb-3 border-b border-white/[0.04] flex items-center gap-3"
-        >
-          {/* PC sidebar toggle button */}
+        {currentView !== 'lumy' && (
           <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setSidebarOpen(prev => !prev)}
-            className="hidden md:flex items-center justify-center w-9 h-9 rounded-xl border transition-all cursor-pointer flex-shrink-0"
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileTap={{ scale: 0.92 }}
+            onClick={() => setCurrentView('lumy')}
             style={{
-              background: sidebarOpen ? 'rgba(244,63,94,0.12)' : 'rgba(255,255,255,0.04)',
-              borderColor: sidebarOpen ? 'rgba(244,63,94,0.25)' : 'rgba(255,255,255,0.07)',
-              color: sidebarOpen ? '#f43f5e' : '#6b7280',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '7px 12px',
+              borderRadius: 12,
+              background: 'rgba(251,191,36,0.1)',
+              border: '1px solid rgba(251,191,36,0.2)',
+              color: '#fbbf24',
+              fontSize: 12,
+              fontWeight: 500,
+              cursor: 'pointer',
+              flexShrink: 0,
             }}
-            title="Panneau latéral (Ctrl+B)"
           >
-            <PanelLeft className="w-4 h-4" />
+            <Sparkles style={{ width: 14, height: 14 }} />
+            Lumy
           </motion.button>
+        )}
+      </motion.header>
 
-          <div className="flex-1 min-w-0">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentView}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.2 }}
-              >
-                <h2 className="text-lg md:text-xl font-semibold text-white tracking-tight truncate">
-                  {currentView === "dashboard"
-                    ? `${getGreeting()}, ${currentUser.username}`
-                    : currentView === "lumy"
-                    ? <><span className="text-amber-400">Lumy</span><span className="text-gray-700 font-light text-sm md:text-base ml-2">— IA Personnelle</span></>
-                    : meta.title}
-                </h2>
-                <p className="text-gray-600 text-xs md:text-sm mt-0.5 truncate">
-                  {currentView === "dashboard"
-                    ? new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })
-                    : currentView === "lumy"
-                    ? "Mémoire locale · Sans API · Sans cloud"
-                    : meta.subtitle}
-                </p>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Lumy badge */}
-          {currentView !== 'lumy' && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              onClick={() => setCurrentView('lumy')}
-              className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium hover:bg-amber-500/15 transition-all cursor-pointer flex-shrink-0"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Lumy</span>
-            </motion.button>
-          )}
-        </motion.header>
-
-        {/* Scrollable content */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '16px', paddingBottom: '84px' }}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentView}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-            >
-              {renderContent()}
-            </motion.div>
-          </AnimatePresence>
-        </div>
+      {/* Scrollable content area */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '20px 16px 96px' }}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentView}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
+          >
+            {renderContent()}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
-      {/* Bottom nav (mobile only) */}
+      {/* Bottom navigation */}
       <BottomNav
         currentView={currentView}
         onViewChange={setCurrentView}
