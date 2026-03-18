@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sparkles } from "lucide-react";
+import { Sparkles, PanelLeft } from "lucide-react";
 import { ClockWidget } from "./widgets/ClockWidget";
 import { WeatherWidget } from "./widgets/WeatherWidget";
 import { SystemStatsWidget } from "./widgets/SystemStatsWidget";
@@ -46,14 +46,27 @@ const getGreeting = () => {
 export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogout: () => void }) => {
   const [currentView, setCurrentView] = useState("dashboard");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const meta = VIEW_META[currentView] ?? VIEW_META.dashboard;
+
+  // Ctrl+B keyboard shortcut to toggle sidebar on PC
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'b') {
+        e.preventDefault();
+        setSidebarOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   const renderContent = () => {
     switch (currentView) {
       case "dashboard":
         return (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
             <ClockWidget />
             <WeatherWidget />
             <GoogleSearchWidget />
@@ -66,7 +79,7 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
         );
       case "server":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <SystemStatsWidget currentUser={currentUser} />
             <NetworkMonitorWidget />
           </div>
@@ -79,35 +92,19 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
         );
       case "settings":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <SettingsWidget currentUser={currentUser} />
             {currentUser.role === "admin" && <DiscordBotWidget />}
           </div>
         );
       case "pomodoro":
-        return (
-          <div className="flex justify-center">
-            <PomodoroWidget />
-          </div>
-        );
+        return <div className="flex justify-center"><PomodoroWidget /></div>;
       case "calculator":
-        return (
-          <div className="flex justify-center">
-            <CalculatorWidget />
-          </div>
-        );
+        return <div className="flex justify-center"><CalculatorWidget /></div>;
       case "habits":
-        return (
-          <div className="w-full max-w-2xl mx-auto">
-            <HabitWidget />
-          </div>
-        );
+        return <div className="w-full max-w-2xl mx-auto"><HabitWidget /></div>;
       case "tools":
-        return (
-          <div className="w-full">
-            <ToolsWidget />
-          </div>
-        );
+        return <div className="w-full"><ToolsWidget /></div>;
       case "lumy":
         return (
           <div className="h-full">
@@ -119,9 +116,9 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
   };
 
   return (
-    <div style={{ display: 'flex', height: '100dvh', width: '100%', overflow: 'hidden', background: '#060608' }}>
+    <div style={{ display: 'flex', height: '100dvh', width: '100%', overflow: 'hidden', background: '#060608', position: 'relative' }}>
 
-      {/* Full screen menu overlay */}
+      {/* Full screen menu (mobile only) */}
       <FullScreenMenu
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
@@ -131,16 +128,40 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
         userName={currentUser.username}
       />
 
-      {/* Desktop sidebar — hidden on mobile */}
-      <div className="hidden md:flex flex-shrink-0">
-        <Sidebar
-          currentView={currentView}
-          onViewChange={setCurrentView}
-          onLogout={onLogout}
-        />
-      </div>
+      {/* Sidebar overlay backdrop (desktop) */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setSidebarOpen(false)}
+            className="hidden md:block fixed inset-0 z-30 bg-black/40 backdrop-blur-sm"
+          />
+        )}
+      </AnimatePresence>
 
-      {/* Main content area */}
+      {/* Sidebar — slides in as overlay on desktop */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ x: -240, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -240, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 34 }}
+            className="hidden md:flex fixed top-0 left-0 h-full z-40 shadow-2xl"
+          >
+            <Sidebar
+              currentView={currentView}
+              onViewChange={(v) => { setCurrentView(v); setSidebarOpen(false); }}
+              onLogout={onLogout}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Main content */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
 
         {/* Header */}
@@ -148,8 +169,23 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-          className="flex-shrink-0 px-4 md:px-6 pt-4 md:pt-5 pb-3 md:pb-4 border-b border-white/[0.04] flex items-center gap-3"
+          className="flex-shrink-0 px-4 pt-4 pb-3 border-b border-white/[0.04] flex items-center gap-3"
         >
+          {/* PC sidebar toggle button */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setSidebarOpen(prev => !prev)}
+            className="hidden md:flex items-center justify-center w-9 h-9 rounded-xl border transition-all cursor-pointer flex-shrink-0"
+            style={{
+              background: sidebarOpen ? 'rgba(244,63,94,0.12)' : 'rgba(255,255,255,0.04)',
+              borderColor: sidebarOpen ? 'rgba(244,63,94,0.25)' : 'rgba(255,255,255,0.07)',
+              color: sidebarOpen ? '#f43f5e' : '#6b7280',
+            }}
+            title="Panneau latéral (Ctrl+B)"
+          >
+            <PanelLeft className="w-4 h-4" />
+          </motion.button>
+
           <div className="flex-1 min-w-0">
             <AnimatePresence mode="wait">
               <motion.div
@@ -192,10 +228,7 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
         </motion.header>
 
         {/* Scrollable content */}
-        <div
-          style={{ flex: 1, overflowY: 'auto', padding: '16px', paddingBottom: '80px' }}
-          className="md:p-6 md:pb-8"
-        >
+        <div style={{ flex: 1, overflowY: 'auto', padding: '16px', paddingBottom: '84px' }}>
           <AnimatePresence mode="wait">
             <motion.div
               key={currentView}
@@ -210,7 +243,7 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
         </div>
       </div>
 
-      {/* Mobile bottom nav */}
+      {/* Bottom nav (mobile only) */}
       <BottomNav
         currentView={currentView}
         onViewChange={setCurrentView}
