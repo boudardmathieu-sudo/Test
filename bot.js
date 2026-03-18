@@ -4,7 +4,7 @@
  * ============================================
  *
  * Bot Discord complet avec système de commandes slash
- * Intégration directe avec le Vibe Panel
+ * Intégration directe avec le LuminaOS
  *
  * Prérequis :
  * - discord.js v14+
@@ -78,7 +78,7 @@ function writeDB(data) {
 }
 
 /**
- * Crée un embed stylisé avec les couleurs Vibe Panel
+ * Crée un embed stylisé avec les couleurs LuminaOS
  */
 function createEmbed(title, description, color = 0x00ff88) {
   return new EmbedBuilder()
@@ -86,7 +86,7 @@ function createEmbed(title, description, color = 0x00ff88) {
     .setDescription(description)
     .setColor(color)
     .setTimestamp()
-    .setFooter({ text: 'Vibe Panel v2.1.0', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
+    .setFooter({ text: 'LuminaOS v2.1.0', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
 }
 
 // ============================
@@ -108,7 +108,7 @@ const commands = [
   },
   {
     name: 'panel',
-    description: 'Affiche le lien vers le Vibe Panel',
+    description: 'Affiche le lien vers le LuminaOS',
   },
   {
     name: 'stats',
@@ -143,7 +143,7 @@ client.once('ready', async () => {
   console.log('');
   console.log('┌─────────────────────────────────────────┐');
   console.log('│                                         │');
-  console.log('│       Vibe Panel Discord Bot            │');
+  console.log('│       LuminaOS Discord Bot            │');
   console.log('│       v2.1.0 - Neon Edition            │');
   console.log('│                                         │');
   console.log('└─────────────────────────────────────────┘');
@@ -171,7 +171,7 @@ client.once('ready', async () => {
   // Définir le statut du bot
   client.user.setPresence({
     activities: [{
-      name: 'Vibe Panel',
+      name: 'LuminaOS',
       type: ActivityType.Watching,
       url: PANEL_URL
     }],
@@ -233,7 +233,7 @@ Serveurs: ${client.guilds.cache.size}
 Utilisateurs: ${client.users.cache.size}
 Uptime: ${hours}h ${minutes}m ${seconds}s
 
-**Vibe Panel**
+**LuminaOS**
 Utilisateurs enregistrés: ${db.users?.length || 0}
 URL: [${PANEL_URL}](${PANEL_URL})
 Version: v2.1.0-neon
@@ -259,13 +259,13 @@ Node.js: ${process.version}
 **/ping** - Vérifie la latence du bot
 **/status** - Affiche les statistiques complètes
 **/help** - Affiche cette aide
-**/panel** - Lien vers le Vibe Panel
+**/panel** - Lien vers le LuminaOS
 **/stats** - Statistiques du serveur Discord
 **/userinfo** - Informations sur un utilisateur
 **/serverinfo** - Informations sur le serveur
 
 **À propos**
-Vibe Panel est un dashboard personnel moderne avec intégration Discord, Spotify, monitoring serveur et bien plus.
+LuminaOS est un dashboard personnel moderne avec intégration Discord, Spotify, monitoring serveur et bien plus.
 
 **Support**
 GitHub: [github.com/boudardmathieu-sudo/Test](https://github.com/boudardmathieu-sudo/Test)
@@ -282,7 +282,7 @@ GitHub: [github.com/boudardmathieu-sudo/Test](https://github.com/boudardmathieu-
       // ───────────────────────────────────
       case 'panel': {
         const embed = createEmbed(
-          'Vibe Panel',
+          'LuminaOS',
           `
 **Accès au Panel**
 ${PANEL_URL}

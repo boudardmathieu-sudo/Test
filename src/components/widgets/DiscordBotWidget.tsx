@@ -46,8 +46,8 @@ export const DiscordBotWidget = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           content: message,
-          username: botData?.username || "Vibe Panel",
-          avatar_url: botData?.avatar || "https://ui-avatars.com/api/?name=Vibe+Panel&background=00ff88&color=000"
+          username: botData?.username || "LuminaOS",
+          avatar_url: botData?.avatar || "https://ui-avatars.com/api/?name=LuminaOS&background=f43f5e&color=fff"
         })
       });
 

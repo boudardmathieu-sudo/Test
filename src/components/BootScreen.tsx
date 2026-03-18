@@ -1,256 +1,419 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { NeonLeafFalling } from './ui/NeonLeaf';
 
-const TITLE = 'Vibe Panel';
+const TITLE_1 = 'Lumina';
+const TITLE_2 = 'OS';
+const SUBTITLE = 'Powered by Lumi · Personal Intelligence';
 
-const RING_R = 72;
-const RING_STROKE = 2.5;
-const RING_CIRC = 2 * Math.PI * RING_R;
+const GLITCH_CHARS = '!<>-_\\/[]{}—=+*^?#________';
 
-export const BootScreen = ({ onComplete }: { onComplete: () => void }) => {
-  const [phase, setPhase] = useState<0 | 1 | 2 | 3>(0);
-  // phase 0 = ring drawing
-  // phase 1 = leaf + title appear
-  // phase 2 = progress ring fills
-  // phase 3 = exit
-  const [typedCount, setTypedCount] = useState(0);
-  const [progress, setProgress] = useState(0);
-  const [exiting, setExiting] = useState(false);
+function useGlitch(target: string, active: boolean, duration = 600) {
+  const [display, setDisplay] = useState(target);
+  const frame = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const timers: ReturnType<typeof setTimeout>[] = [];
+    if (!active) { setDisplay(target); return; }
+    let iteration = 0;
+    const maxIter = Math.ceil(duration / 40);
+    const run = () => {
+      setDisplay(
+        target.split('').map((char, i) => {
+          if (char === ' ') return ' ';
+          if (i < iteration / maxIter * target.length) return char;
+          return GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+        }).join('')
+      );
+      iteration++;
+      if (iteration <= maxIter) frame.current = setTimeout(run, 40);
+      else setDisplay(target);
+    };
+    run();
+    return () => { if (frame.current) clearTimeout(frame.current); };
+  }, [active, target, duration]);
 
-    // Phase 0→1: ring finishes drawing, leaf appears
-    timers.push(setTimeout(() => setPhase(1), 800));
+  return display;
+}
 
-    // Typewriter
-    TITLE.split('').forEach((_, i) => {
-      timers.push(setTimeout(() => setTypedCount(i + 1), 900 + i * 80));
+const SCAN_LINES = Array.from({ length: 12 });
+const PARTICLES = Array.from({ length: 24 }, (_, i) => ({
+  angle: (i / 24) * Math.PI * 2,
+  dist: 90 + Math.random() * 80,
+  size: 2 + Math.random() * 4,
+  delay: Math.random() * 0.3,
+  dur: 0.6 + Math.random() * 0.4,
+}));
+
+export const BootScreen = ({ onComplete }: { onComplete: () => void }) => {
+  const [phase, setPhase] = useState(0);
+  const [exiting, setExiting] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [glitchActive, setGlitchActive] = useState(false);
+  const [scanFlash, setScanFlash] = useState(false);
+  const [bootLines, setBootLines] = useState<string[]>([]);
+
+  const title1Display = useGlitch(TITLE_1, glitchActive, 700);
+  const title2Display = useGlitch(TITLE_2, glitchActive, 400);
+
+  const BOOT_SEQUENCE = [
+    '> Initializing LuminaOS kernel...',
+    '> Loading neural interface... OK',
+    '> Connecting Lumi AI engine... OK',
+    '> Mounting personal workspace... OK',
+    '> All systems nominal.',
+  ];
+
+  useEffect(() => {
+    const t: ReturnType<typeof setTimeout>[] = [];
+
+    t.push(setTimeout(() => { setPhase(1); setGlitchActive(true); setScanFlash(true); }, 300));
+    t.push(setTimeout(() => { setGlitchActive(false); setScanFlash(false); }, 1100));
+
+    t.push(setTimeout(() => setPhase(2), 1200));
+
+    BOOT_SEQUENCE.forEach((line, i) => {
+      t.push(setTimeout(() => setBootLines(prev => [...prev, line]), 1300 + i * 260));
     });
 
-    // Phase 1→2: start filling progress
-    timers.push(setTimeout(() => setPhase(2), 1000));
-
-    // Progress fill
-    const pStart = 1100;
-    const pDur = 1400;
-    const steps = 60;
+    const pStart = 1400;
+    const pDur = 1600;
+    const steps = 80;
     for (let s = 0; s <= steps; s++) {
-      timers.push(
-        setTimeout(
-          () => setProgress(Math.round((s / steps) * 100)),
-          pStart + (pDur / steps) * s
-        )
-      );
+      t.push(setTimeout(() => setProgress(Math.round((s / steps) * 100)), pStart + (pDur / steps) * s));
     }
 
-    // Phase 2→3: exit
-    timers.push(setTimeout(() => {
-      setPhase(3);
-      setExiting(true);
-      setTimeout(onComplete, 800);
-    }, 2700));
+    t.push(setTimeout(() => { setGlitchActive(true); }, 2900));
+    t.push(setTimeout(() => { setGlitchActive(false); }, 3300));
 
-    return () => timers.forEach(clearTimeout);
+    t.push(setTimeout(() => { setPhase(3); setExiting(true); setTimeout(onComplete, 700); }, 3500));
+
+    return () => t.forEach(clearTimeout);
   }, [onComplete]);
-
-  // Ring dashoffset calculation
-  const ringDrawOffset = phase >= 1 ? 0 : RING_CIRC;
-  const progressOffset = RING_CIRC - (RING_CIRC * progress) / 100;
 
   return (
     <AnimatePresence>
       {!exiting && (
         <motion.div
-          exit={{ opacity: 0, scale: 1.06, filter: 'blur(20px)' }}
-          transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#06060a] overflow-hidden"
+          exit={{ opacity: 0, scale: 1.04, filter: 'blur(24px)' }}
+          transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 50,
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            background: '#06060a', overflow: 'hidden',
+          }}
         >
-          {/* Ambient glows */}
+          {/* CRT scan line overlay */}
+          <div style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 5,
+            background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px)',
+          }} />
+
+          {/* Flash on glitch */}
+          <AnimatePresence>
+            {scanFlash && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 0.18, 0, 0.12, 0] }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #f43f5e44, #a855f744)', zIndex: 4, pointerEvents: 'none' }}
+              />
+            )}
+          </AnimatePresence>
+
+          {/* Animated background grid */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.5 }}
-            className="absolute inset-0 pointer-events-none"
-          >
-            <motion.div
-              initial={{ scale: 0.3, opacity: 0 }}
-              animate={{ scale: 1.8, opacity: 0.12 }}
-              transition={{ duration: 3, ease: 'easeOut' }}
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-rose-600 blur-[160px]"
-            />
-            <motion.div
-              initial={{ scale: 0.3, opacity: 0 }}
-              animate={{ scale: 1.4, opacity: 0.08 }}
-              transition={{ duration: 3.5, delay: 0.3, ease: 'easeOut' }}
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-violet-700 blur-[130px]"
-            />
-          </motion.div>
+            animate={{ opacity: phase >= 1 ? 0.07 : 0 }}
+            transition={{ duration: 1 }}
+            style={{
+              position: 'absolute', inset: 0, pointerEvents: 'none',
+              backgroundImage: `linear-gradient(rgba(244,63,94,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(244,63,94,0.5) 1px, transparent 1px)`,
+              backgroundSize: '60px 60px',
+            }}
+          />
 
-          {/* Falling mini leaves in background */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {[
-              { x: '12%',  d: 0.5,  sz: 8,  dur: 4.5 },
-              { x: '25%',  d: 0.9,  sz: 6,  dur: 5.2 },
-              { x: '40%',  d: 1.3,  sz: 10, dur: 4.0 },
-              { x: '58%',  d: 0.6,  sz: 7,  dur: 5.8 },
-              { x: '72%',  d: 1.0,  sz: 9,  dur: 4.3 },
-              { x: '85%',  d: 0.4,  sz: 6,  dur: 5.5 },
-              { x: '7%',   d: 1.5,  sz: 8,  dur: 6.0 },
-              { x: '92%',  d: 0.8,  sz: 7,  dur: 4.7 },
-            ].map((leaf, i) => (
+          {/* Big ambient glow */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.2 }}
+            animate={{ opacity: phase >= 1 ? 0.18 : 0, scale: phase >= 1 ? 2 : 0.2 }}
+            transition={{ duration: 1.2, ease: 'easeOut' }}
+            style={{
+              position: 'absolute', width: 600, height: 600,
+              borderRadius: '50%', background: 'radial-gradient(circle, #f43f5e 0%, #a855f7 50%, transparent 70%)',
+              filter: 'blur(80px)', pointerEvents: 'none',
+            }}
+          />
+
+          {/* Second glow pulse */}
+          <motion.div
+            animate={{ scale: [1, 1.15, 1], opacity: [0.06, 0.13, 0.06] }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+            style={{
+              position: 'absolute', width: 400, height: 400,
+              borderRadius: '50%', background: 'radial-gradient(circle, #a855f7, transparent 70%)',
+              filter: 'blur(60px)', pointerEvents: 'none',
+            }}
+          />
+
+          {/* Scan lines shooting through */}
+          {phase >= 1 && SCAN_LINES.map((_, i) => (
+            <motion.div
+              key={i}
+              initial={{ x: '-110%', opacity: 0 }}
+              animate={{ x: '110%', opacity: [0, 0.6, 0] }}
+              transition={{ duration: 0.6 + Math.random() * 0.4, delay: 0.3 + i * 0.06, ease: 'easeInOut' }}
+              style={{
+                position: 'absolute',
+                top: `${5 + i * 8}%`,
+                left: 0, right: 0,
+                height: 1,
+                background: i % 3 === 0 ? 'rgba(244,63,94,0.7)' : i % 3 === 1 ? 'rgba(168,85,247,0.6)' : 'rgba(255,255,255,0.3)',
+                pointerEvents: 'none',
+              }}
+            />
+          ))}
+
+          {/* Burst particles */}
+          {phase >= 1 && PARTICLES.map((p, i) => (
+            <motion.div
+              key={i}
+              initial={{ x: 0, y: 0, opacity: 0, scale: 0 }}
+              animate={{
+                x: Math.cos(p.angle) * p.dist,
+                y: Math.sin(p.angle) * p.dist,
+                opacity: [0, 1, 0],
+                scale: [0, 1.4, 0],
+              }}
+              transition={{ duration: p.dur, delay: p.delay, ease: 'easeOut' }}
+              style={{
+                position: 'absolute',
+                width: p.size, height: p.size,
+                borderRadius: '50%',
+                background: i % 3 === 0 ? '#f43f5e' : i % 3 === 1 ? '#a855f7' : '#fb923c',
+                boxShadow: `0 0 6px 2px ${i % 3 === 0 ? '#f43f5e' : i % 3 === 1 ? '#a855f7' : '#fb923c'}`,
+                pointerEvents: 'none',
+              }}
+            />
+          ))}
+
+          {/* Central logo area */}
+          <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
+
+            {/* Logo hex ring */}
+            <div style={{ position: 'relative', width: 140, height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+
+              {/* Rotating outer ring */}
               <motion.div
-                key={i}
-                initial={{ y: '-8%', opacity: 0, rotate: -20 }}
-                animate={{
-                  y: '115%',
-                  opacity: [0, 0.35, 0.35, 0],
-                  rotate: i % 2 === 0 ? 140 : -140,
-                  x: [0, i % 2 === 0 ? 18 : -18, 0],
-                }}
-                transition={{
-                  duration: leaf.dur,
-                  delay: leaf.d,
-                  repeat: Infinity,
-                  ease: 'easeIn',
-                }}
-                style={{ position: 'absolute', top: 0, left: leaf.x }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+                style={{ position: 'absolute', inset: 0 }}
               >
-                <svg width={leaf.sz} height={leaf.sz * 1.2} viewBox="0 0 48 58" fill="none">
-                  <path
-                    d="M24 4 C24 4 38 14 38 26 C38 34.84 31.73 42 24 44 C16.27 42 10 34.84 10 26 C10 14 24 4 24 4Z"
-                    fill={i % 3 === 0 ? '#f43f5e' : i % 3 === 1 ? '#a855f7' : '#c026d3'}
-                  />
+                <svg width="140" height="140" viewBox="0 0 140 140">
+                  <defs>
+                    <linearGradient id="outerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#f43f5e" />
+                      <stop offset="50%" stopColor="#a855f7" />
+                      <stop offset="100%" stopColor="#f43f5e" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="70" cy="70" r="62" fill="none" stroke="url(#outerGrad)"
+                    strokeWidth="1.5" strokeDasharray="12 8" strokeLinecap="round"
+                    style={{ filter: 'drop-shadow(0 0 6px #f43f5e)' }} />
                 </svg>
               </motion.div>
-            ))}
-          </div>
 
-          {/* Main circle + logo */}
-          <div className="relative z-10 flex flex-col items-center gap-7">
-
-            {/* SVG ring + leaf */}
-            <div className="relative flex items-center justify-center" style={{ width: 180, height: 180 }}>
-              <svg
-                width="180"
-                height="180"
-                viewBox="0 0 180 180"
-                style={{ position: 'absolute', inset: 0, transform: 'rotate(-90deg)' }}
+              {/* Counter-rotating inner ring */}
+              <motion.div
+                animate={{ rotate: -360 }}
+                transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
+                style={{ position: 'absolute', inset: 12 }}
               >
-                {/* Track ring */}
-                <circle
-                  cx="90" cy="90" r={RING_R}
-                  fill="none"
-                  stroke="rgba(255,255,255,0.05)"
-                  strokeWidth={RING_STROKE}
-                />
+                <svg width="116" height="116" viewBox="0 0 116 116">
+                  <circle cx="58" cy="58" r="50" fill="none" stroke="rgba(168,85,247,0.4)"
+                    strokeWidth="1" strokeDasharray="4 12" strokeLinecap="round" />
+                </svg>
+              </motion.div>
 
-                {/* Drawing ring (appears first) */}
-                <motion.circle
-                  cx="90" cy="90" r={RING_R}
-                  fill="none"
-                  stroke="rgba(244,63,94,0.25)"
-                  strokeWidth={RING_STROKE}
-                  strokeLinecap="round"
-                  strokeDasharray={RING_CIRC}
-                  initial={{ strokeDashoffset: RING_CIRC }}
-                  animate={{ strokeDashoffset: ringDrawOffset }}
-                  transition={{ duration: 0.9, ease: [0.4, 0, 0.2, 1] }}
-                />
-
-                {/* Progress ring */}
-                {phase >= 2 && (
+              {/* Progress arc */}
+              {phase >= 2 && (
+                <svg width="140" height="140" viewBox="0 0 140 140"
+                  style={{ position: 'absolute', inset: 0, transform: 'rotate(-90deg)' }}>
+                  <defs>
+                    <linearGradient id="progGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#be123c" />
+                      <stop offset="50%" stopColor="#f43f5e" />
+                      <stop offset="100%" stopColor="#a855f7" />
+                    </linearGradient>
+                  </defs>
                   <motion.circle
-                    cx="90" cy="90" r={RING_R}
-                    fill="none"
-                    stroke="url(#ringGrad)"
-                    strokeWidth={RING_STROKE + 1}
+                    cx="70" cy="70" r="62"
+                    fill="none" stroke="url(#progGrad)" strokeWidth="3"
                     strokeLinecap="round"
-                    strokeDasharray={RING_CIRC}
-                    initial={{ strokeDashoffset: RING_CIRC }}
-                    animate={{ strokeDashoffset: progressOffset }}
+                    strokeDasharray={2 * Math.PI * 62}
+                    initial={{ strokeDashoffset: 2 * Math.PI * 62 }}
+                    animate={{ strokeDashoffset: 2 * Math.PI * 62 * (1 - progress / 100) }}
                     transition={{ duration: 0.05, ease: 'linear' }}
-                    style={{ filter: 'drop-shadow(0 0 8px rgba(244,63,94,0.8))' }}
+                    style={{ filter: 'drop-shadow(0 0 10px rgba(244,63,94,0.9))' }}
                   />
-                )}
+                </svg>
+              )}
 
-                {/* Gradient definition */}
-                <defs>
-                  <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#be123c" />
-                    <stop offset="50%" stopColor="#f43f5e" />
-                    <stop offset="100%" stopColor="#a855f7" />
-                  </linearGradient>
-                </defs>
-              </svg>
-
-              {/* Neon Leaf inside ring */}
-              <AnimatePresence>
-                {phase >= 1 && (
-                  <motion.div
-                    initial={{ scale: 0, opacity: 0, rotate: -15 }}
-                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                    transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-                    className="relative z-10"
+              {/* Center "L" mark */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.4 }}
+                animate={{ opacity: phase >= 1 ? 1 : 0, scale: phase >= 1 ? 1 : 0.4 }}
+                transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+                style={{ position: 'relative', zIndex: 2, textAlign: 'center' }}
+              >
+                <div style={{
+                  width: 56, height: 56, borderRadius: 14,
+                  background: 'linear-gradient(135deg, #f43f5e22, #a855f722)',
+                  border: '1px solid rgba(244,63,94,0.4)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 0 24px rgba(244,63,94,0.3), inset 0 0 16px rgba(168,85,247,0.1)',
+                }}>
+                  <motion.span
+                    animate={glitchActive ? {
+                      x: [0, -3, 3, -2, 0],
+                      filter: ['none', 'hue-rotate(90deg)', 'hue-rotate(-90deg)', 'none'],
+                    } : { x: 0 }}
+                    transition={{ duration: 0.15, repeat: glitchActive ? Infinity : 0 }}
+                    style={{
+                      fontSize: 28, fontWeight: 900, fontFamily: 'monospace',
+                      background: 'linear-gradient(135deg, #f43f5e, #a855f7)',
+                      WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                      letterSpacing: '-2px',
+                    }}
                   >
-                    <NeonLeafFalling size={72} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Progress % in center */}
-              <AnimatePresence>
-                {phase >= 2 && progress < 100 && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="absolute bottom-6 left-0 right-0 flex justify-center"
-                  >
-                    <span className="text-[10px] font-mono text-rose-400/60">{progress}%</span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    L
+                  </motion.span>
+                </div>
+              </motion.div>
             </div>
 
-            {/* Title typewriter */}
+            {/* Title */}
             <AnimatePresence>
               {phase >= 1 && (
                 <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: 'easeOut' }}
-                  className="text-center"
+                  initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+                  style={{ textAlign: 'center' }}
                 >
-                  <div className="text-2xl font-bold text-white tracking-tight h-8 flex items-center justify-center">
-                    {TITLE.split('').map((char, i) => (
-                      <motion.span
-                        key={i}
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: i < typedCount ? 1 : 0, y: i < typedCount ? 0 : 6 }}
-                        transition={{ duration: 0.15 }}
-                        style={{ color: i >= 6 ? '#fb7185' : 'white', fontWeight: i >= 6 ? 300 : 700 }}
-                      >
-                        {char}
-                      </motion.span>
-                    ))}
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 2, justifyContent: 'center' }}>
                     <motion.span
-                      animate={{ opacity: typedCount < TITLE.length ? [1, 0, 1] : 0 }}
-                      transition={{ duration: 0.6, repeat: Infinity }}
-                      className="ml-0.5 text-rose-400 font-thin"
+                      animate={glitchActive ? { x: [0, -2, 2, -1, 0], opacity: [1, 0.7, 1] } : { x: 0 }}
+                      transition={{ duration: 0.1, repeat: glitchActive ? Infinity : 0 }}
+                      style={{
+                        fontSize: 36, fontWeight: 900, letterSpacing: '-1px',
+                        background: 'linear-gradient(135deg, #fff 0%, #f1f5f9 100%)',
+                        WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                        textShadow: 'none',
+                        fontFamily: 'system-ui, sans-serif',
+                      }}
                     >
-                      |
+                      {title1Display}
+                    </motion.span>
+                    <motion.span
+                      animate={glitchActive ? { x: [0, 2, -2, 1, 0], opacity: [1, 0.6, 1] } : { x: 0 }}
+                      transition={{ duration: 0.1, repeat: glitchActive ? Infinity : 0, delay: 0.05 }}
+                      style={{
+                        fontSize: 36, fontWeight: 300, letterSpacing: '2px',
+                        background: 'linear-gradient(135deg, #f43f5e, #a855f7)',
+                        WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                        fontFamily: 'system-ui, sans-serif',
+                      }}
+                    >
+                      {title2Display}
                     </motion.span>
                   </div>
+
+                  <motion.div
+                    initial={{ opacity: 0, scaleX: 0 }}
+                    animate={{ opacity: 1, scaleX: 1 }}
+                    transition={{ delay: 0.4, duration: 0.5 }}
+                    style={{
+                      height: 1, margin: '6px auto 8px',
+                      background: 'linear-gradient(90deg, transparent, #f43f5e, #a855f7, transparent)',
+                      width: 180,
+                    }}
+                  />
+
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.6, duration: 0.4 }}
-                    className="text-[10px] font-mono text-gray-600 tracking-[0.3em] uppercase mt-1.5"
+                    style={{
+                      fontSize: 10, fontFamily: 'monospace',
+                      color: 'rgba(168,85,247,0.6)',
+                      letterSpacing: '0.2em', textTransform: 'uppercase',
+                    }}
                   >
-                    Personal Dashboard
+                    {SUBTITLE}
                   </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Boot log terminal */}
+            <AnimatePresence>
+              {phase >= 2 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  style={{
+                    width: 300, fontFamily: 'monospace', fontSize: 10,
+                    color: 'rgba(255,255,255,0.35)',
+                    background: 'rgba(0,0,0,0.4)',
+                    border: '1px solid rgba(244,63,94,0.12)',
+                    borderRadius: 8, padding: '10px 14px',
+                    display: 'flex', flexDirection: 'column', gap: 3,
+                  }}
+                >
+                  {bootLines.map((line, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2 }}
+                      style={{
+                        color: line.includes('OK') ? 'rgba(34,197,94,0.7)' : 'rgba(255,255,255,0.35)',
+                      }}
+                    >
+                      {line}
+                    </motion.div>
+                  ))}
+                  {bootLines.length < BOOT_SEQUENCE.length && (
+                    <motion.span
+                      animate={{ opacity: [1, 0, 1] }}
+                      transition={{ duration: 0.5, repeat: Infinity }}
+                      style={{ color: '#f43f5e' }}
+                    >
+                      ▋
+                    </motion.span>
+                  )}
+
+                  {/* Progress bar */}
+                  <div style={{ marginTop: 8 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, color: 'rgba(255,255,255,0.25)' }}>
+                      <span>BOOT</span>
+                      <span>{progress}%</span>
+                    </div>
+                    <div style={{ height: 3, background: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
+                      <motion.div
+                        animate={{ width: `${progress}%` }}
+                        transition={{ duration: 0.05 }}
+                        style={{
+                          height: '100%',
+                          background: 'linear-gradient(90deg, #f43f5e, #a855f7)',
+                          borderRadius: 2,
+                          boxShadow: '0 0 8px rgba(244,63,94,0.8)',
+                        }}
+                      />
+                    </div>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
