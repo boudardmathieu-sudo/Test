@@ -7,7 +7,7 @@
     }
   ],
   "config": {
-    "googleHomeConnected": false,
+    "googleHomeConnected": true,
     "zimaIp": ""
   },
   "friday": {

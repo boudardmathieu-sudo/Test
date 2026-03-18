@@ -4,180 +4,111 @@ import { motion } from 'motion/react';
 interface LeafLogoProps {
   size?: number;
   className?: string;
+  glow?: boolean;
 }
 
-export const LeafLogo = ({ size = 48, className = '' }: LeafLogoProps) => {
+export const LeafLogo = ({ size = 32, className = '', glow = false }: LeafLogoProps) => {
   return (
     <motion.div
       className={className}
-      style={{ width: size, height: size, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
-      animate={{
-        y: [0, 6, 0],
-        rotate: [-4, 4, -4],
-      }}
-      transition={{
-        duration: 4,
-        repeat: Infinity,
-        ease: 'easeInOut',
-      }}
+      style={{ width: size, height: size, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+      animate={{ y: [0, -3, 0], rotate: [-2, 2, -2] }}
+      transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
     >
-      <svg
-        width={size}
-        height={size}
-        viewBox="0 0 48 48"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      <svg width={size} height={size} viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="leafGrad" x1="8" y1="4" x2="40" y2="44" gradientUnits="userSpaceOnUse">
+          <linearGradient id={`lg-${size}`} x1="6" y1="2" x2="34" y2="46" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor="#f43f5e" />
-            <stop offset="55%" stopColor="#c026d3" />
+            <stop offset="50%" stopColor="#c026d3" />
             <stop offset="100%" stopColor="#7c3aed" />
           </linearGradient>
-          <linearGradient id="leafGrad2" x1="8" y1="4" x2="40" y2="44" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#fb7185" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#a855f7" stopOpacity="0.3" />
-          </linearGradient>
-          <filter id="leafGlow">
-            <feGaussianBlur stdDeviation="2" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
+          {glow && (
+            <filter id={`gf-${size}`} x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          )}
         </defs>
 
-        {/* Glow behind */}
-        <ellipse cx="24" cy="26" rx="13" ry="16" fill="url(#leafGrad2)" filter="url(#leafGlow)" opacity="0.5" />
+        {/* Glow layer */}
+        {glow && (
+          <ellipse cx="20" cy="26" rx="13" ry="16" fill="#f43f5e" opacity="0.2" filter={`url(#gf-${size})`} />
+        )}
 
-        {/* Main leaf shape */}
+        {/* Main leaf body */}
         <path
-          d="M24 4 C24 4 38 14 38 26 C38 34.84 31.73 42 24 44 C16.27 42 10 34.84 10 26 C10 14 24 4 24 4Z"
-          fill="url(#leafGrad)"
+          d="M20 2 C20 2 34 11 34 23 C34 31.8 27.7 39 20 41 C12.3 39 6 31.8 6 23 C6 11 20 2 20 2Z"
+          fill={`url(#lg-${size})`}
         />
 
-        {/* Inner highlight */}
+        {/* Specular highlight */}
         <path
-          d="M24 10 C24 10 33 18 33 26 C33 32 29.5 37.5 24 40 C18.5 37.5 15 32 15 26 C15 18 24 10 24 10Z"
+          d="M20 7 C20 7 29 14 29 23 C29 29.5 25.5 35 20 37.5 C14.5 35 11 29.5 11 23 C11 14 20 7 20 7Z"
           fill="white"
-          opacity="0.08"
+          opacity="0.09"
         />
 
         {/* Center vein */}
-        <path
-          d="M24 42 L24 14"
-          stroke="white"
-          strokeOpacity="0.25"
-          strokeWidth="1"
-          strokeLinecap="round"
-        />
+        <path d="M20 40 L20 11" stroke="white" strokeOpacity="0.28" strokeWidth="1.1" strokeLinecap="round" />
 
-        {/* Side veins */}
-        <path
-          d="M24 22 C20 20 16 21 14 23"
-          stroke="white"
-          strokeOpacity="0.18"
-          strokeWidth="0.8"
-          strokeLinecap="round"
-        />
-        <path
-          d="M24 22 C28 20 32 21 34 23"
-          stroke="white"
-          strokeOpacity="0.18"
-          strokeWidth="0.8"
-          strokeLinecap="round"
-        />
-        <path
-          d="M24 30 C20 28 16 29 13 31"
-          stroke="white"
-          strokeOpacity="0.14"
-          strokeWidth="0.7"
-          strokeLinecap="round"
-        />
-        <path
-          d="M24 30 C28 28 32 29 35 31"
-          stroke="white"
-          strokeOpacity="0.14"
-          strokeWidth="0.7"
-          strokeLinecap="round"
-        />
+        {/* Left veins */}
+        <path d="M20 19 C17 17.5 13.5 18 11.5 20" stroke="white" strokeOpacity="0.2" strokeWidth="0.9" strokeLinecap="round" />
+        <path d="M20 26 C17 24.5 13 25 10.5 27" stroke="white" strokeOpacity="0.16" strokeWidth="0.8" strokeLinecap="round" />
+        <path d="M20 33 C17.5 31.5 14.5 32 12.5 33.5" stroke="white" strokeOpacity="0.12" strokeWidth="0.7" strokeLinecap="round" />
+
+        {/* Right veins */}
+        <path d="M20 19 C23 17.5 26.5 18 28.5 20" stroke="white" strokeOpacity="0.2" strokeWidth="0.9" strokeLinecap="round" />
+        <path d="M20 26 C23 24.5 27 25 29.5 27" stroke="white" strokeOpacity="0.16" strokeWidth="0.8" strokeLinecap="round" />
+        <path d="M20 33 C22.5 31.5 25.5 32 27.5 33.5" stroke="white" strokeOpacity="0.12" strokeWidth="0.7" strokeLinecap="round" />
 
         {/* Stem */}
-        <path
-          d="M24 44 C24 44 22 46 20 47"
-          stroke="url(#leafGrad)"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          opacity="0.6"
-        />
+        <path d="M20 41 C20 41 18.5 43.5 17 45" stroke="#f43f5e" strokeOpacity="0.55" strokeWidth="1.4" strokeLinecap="round" />
       </svg>
     </motion.div>
   );
 };
 
-export const LeafLogoFalling = ({ size = 96 }: { size?: number }) => {
+export const LeafLogoFalling = ({ size = 80 }: { size?: number }) => {
   return (
     <motion.div
       style={{ width: size, height: size, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
-      initial={{ y: -40, opacity: 0, rotate: -15 }}
-      animate={{
-        y: [null, 0],
-        opacity: [null, 1],
-        rotate: [-15, 8, -5, 3, 0],
-      }}
-      transition={{
-        duration: 1.2,
-        ease: [0.23, 1, 0.32, 1],
-        rotate: { duration: 1.4, ease: 'easeOut' },
-      }}
+      initial={{ y: -50, opacity: 0, rotate: -20, scale: 0.7 }}
+      animate={{ y: 0, opacity: 1, rotate: 0, scale: 1 }}
+      transition={{ duration: 1.1, ease: [0.23, 1, 0.32, 1] }}
     >
       <motion.div
-        animate={{
-          y: [0, 8, 0],
-          rotate: [-3, 3, -3],
-        }}
-        transition={{
-          duration: 3.5,
-          repeat: Infinity,
-          ease: 'easeInOut',
-          delay: 1.4,
-        }}
+        animate={{ y: [0, 6, 0], rotate: [-3, 3, -3] }}
+        transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }}
       >
-        <svg
-          width={size}
-          height={size}
-          viewBox="0 0 48 48"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
+        <svg width={size} height={size} viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <linearGradient id="leafGradFall" x1="8" y1="4" x2="40" y2="44" gradientUnits="userSpaceOnUse">
+            <linearGradient id="lgf-main" x1="6" y1="2" x2="34" y2="46" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stopColor="#f43f5e" />
-              <stop offset="55%" stopColor="#c026d3" />
+              <stop offset="50%" stopColor="#c026d3" />
               <stop offset="100%" stopColor="#7c3aed" />
-            </linearGradient>
-            <linearGradient id="leafGrad2Fall" x1="8" y1="4" x2="40" y2="44" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#fb7185" stopOpacity="0.7" />
-              <stop offset="100%" stopColor="#a855f7" stopOpacity="0.4" />
             </linearGradient>
           </defs>
 
-          <ellipse cx="24" cy="26" rx="14" ry="17" fill="url(#leafGrad2Fall)" opacity="0.4" style={{ filter: 'blur(4px)' }} />
+          <ellipse cx="20" cy="26" rx="14" ry="17" fill="#f43f5e" opacity="0.15" style={{ filter: 'blur(6px)' }} />
 
           <path
-            d="M24 4 C24 4 38 14 38 26 C38 34.84 31.73 42 24 44 C16.27 42 10 34.84 10 26 C10 14 24 4 24 4Z"
-            fill="url(#leafGradFall)"
+            d="M20 2 C20 2 34 11 34 23 C34 31.8 27.7 39 20 41 C12.3 39 6 31.8 6 23 C6 11 20 2 20 2Z"
+            fill="url(#lgf-main)"
           />
 
           <path
-            d="M24 10 C24 10 33 18 33 26 C33 32 29.5 37.5 24 40 C18.5 37.5 15 32 15 26 C15 18 24 10 24 10Z"
-            fill="white"
-            opacity="0.1"
+            d="M20 7 C20 7 29 14 29 23 C29 29.5 25.5 35 20 37.5 C14.5 35 11 29.5 11 23 C11 14 20 7 20 7Z"
+            fill="white" opacity="0.1"
           />
 
-          <path d="M24 42 L24 14" stroke="white" strokeOpacity="0.3" strokeWidth="1.2" strokeLinecap="round" />
-          <path d="M24 22 C20 20 16 21 14 23" stroke="white" strokeOpacity="0.2" strokeWidth="0.9" strokeLinecap="round" />
-          <path d="M24 22 C28 20 32 21 34 23" stroke="white" strokeOpacity="0.2" strokeWidth="0.9" strokeLinecap="round" />
-          <path d="M24 30 C20 28 16 29 13 31" stroke="white" strokeOpacity="0.16" strokeWidth="0.8" strokeLinecap="round" />
-          <path d="M24 30 C28 28 32 29 35 31" stroke="white" strokeOpacity="0.16" strokeWidth="0.8" strokeLinecap="round" />
-          <path d="M24 44 C24 44 22 46 20 47" stroke="url(#leafGradFall)" strokeWidth="1.5" strokeLinecap="round" opacity="0.7" />
+          <path d="M20 40 L20 11" stroke="white" strokeOpacity="0.3" strokeWidth="1.2" strokeLinecap="round" />
+          <path d="M20 19 C17 17.5 13.5 18 11.5 20" stroke="white" strokeOpacity="0.22" strokeWidth="0.9" strokeLinecap="round" />
+          <path d="M20 26 C17 24.5 13 25 10.5 27" stroke="white" strokeOpacity="0.17" strokeWidth="0.8" strokeLinecap="round" />
+          <path d="M20 33 C17.5 31.5 14.5 32 12.5 33.5" stroke="white" strokeOpacity="0.13" strokeWidth="0.7" strokeLinecap="round" />
+          <path d="M20 19 C23 17.5 26.5 18 28.5 20" stroke="white" strokeOpacity="0.22" strokeWidth="0.9" strokeLinecap="round" />
+          <path d="M20 26 C23 24.5 27 25 29.5 27" stroke="white" strokeOpacity="0.17" strokeWidth="0.8" strokeLinecap="round" />
+          <path d="M20 33 C22.5 31.5 25.5 32 27.5 33.5" stroke="white" strokeOpacity="0.13" strokeWidth="0.7" strokeLinecap="round" />
+          <path d="M20 41 C20 41 18.5 43.5 17 45" stroke="#f43f5e" strokeOpacity="0.6" strokeWidth="1.4" strokeLinecap="round" />
         </svg>
       </motion.div>
     </motion.div>

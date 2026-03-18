@@ -3,56 +3,20 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   LayoutDashboard, Home, Server, Settings,
   Timer, Calculator, CheckSquare, Wrench,
-  LogOut, X, Sparkles, ChevronRight, Clock
+  LogOut, X, Sparkles
 } from 'lucide-react';
 import { LeafLogo } from './ui/LeafLogo';
 
-const NAV_ITEMS = [
-  {
-    id: 'lumy',       label: 'Lumy',           subtitle: 'IA locale — sans API, sans cloud',
-    icon: Sparkles,   color: '#fbbf24',        gradient: 'from-amber-500/20 to-orange-600/10',
-    border: 'border-amber-500/20', featured: true,
-  },
-  {
-    id: 'dashboard',  label: 'Dashboard',    subtitle: 'Vue d\'ensemble',
-    icon: LayoutDashboard, color: '#f43f5e', gradient: 'from-rose-500/15 to-rose-900/5',
-    border: 'border-rose-500/15',
-  },
-  {
-    id: 'home',       label: 'Maison',       subtitle: 'Appareils connectés',
-    icon: Home,       color: '#a78bfa',       gradient: 'from-violet-500/15 to-violet-900/5',
-    border: 'border-violet-500/15',
-  },
-  {
-    id: 'server',     label: 'Serveur',      subtitle: 'Infrastructure',
-    icon: Server,     color: '#38bdf8',       gradient: 'from-sky-500/15 to-sky-900/5',
-    border: 'border-sky-500/15',
-  },
-  {
-    id: 'pomodoro',   label: 'Pomodoro',     subtitle: 'Focus & concentration',
-    icon: Timer,      color: '#fb923c',       gradient: 'from-orange-500/15 to-orange-900/5',
-    border: 'border-orange-500/15',
-  },
-  {
-    id: 'calculator', label: 'Calculette',   subtitle: 'Calculs rapides',
-    icon: Calculator, color: '#34d399',       gradient: 'from-emerald-500/15 to-emerald-900/5',
-    border: 'border-emerald-500/15',
-  },
-  {
-    id: 'habits',     label: 'Habitudes',    subtitle: 'Suivi journalier',
-    icon: CheckSquare, color: '#60a5fa',      gradient: 'from-blue-500/15 to-blue-900/5',
-    border: 'border-blue-500/15',
-  },
-  {
-    id: 'tools',      label: 'Outils',       subtitle: 'Utilitaires pratiques',
-    icon: Wrench,     color: '#f472b6',       gradient: 'from-pink-500/15 to-pink-900/5',
-    border: 'border-pink-500/15',
-  },
-  {
-    id: 'settings',   label: 'Paramètres',   subtitle: 'Configuration',
-    icon: Settings,   color: '#94a3b8',       gradient: 'from-slate-500/15 to-slate-900/5',
-    border: 'border-slate-500/15',
-  },
+const MODULES = [
+  { id: 'lumy',       label: 'Lumy',        sub: 'IA locale',           icon: Sparkles,        color: '#fbbf24', bg: 'rgba(251,191,36,0.08)'  },
+  { id: 'dashboard',  label: 'Dashboard',   sub: 'Vue générale',        icon: LayoutDashboard, color: '#f43f5e', bg: 'rgba(244,63,94,0.08)'  },
+  { id: 'home',       label: 'Maison',      sub: 'Google Home',         icon: Home,            color: '#a78bfa', bg: 'rgba(167,139,250,0.08)' },
+  { id: 'server',     label: 'Serveur',     sub: 'ZimaOS',              icon: Server,          color: '#38bdf8', bg: 'rgba(56,189,248,0.08)'  },
+  { id: 'pomodoro',   label: 'Pomodoro',    sub: 'Focus',               icon: Timer,           color: '#fb923c', bg: 'rgba(251,146,60,0.08)'  },
+  { id: 'calculator', label: 'Calculette',  sub: 'Calculs rapides',     icon: Calculator,      color: '#34d399', bg: 'rgba(52,211,153,0.08)'  },
+  { id: 'habits',     label: 'Habitudes',   sub: 'Suivi journalier',    icon: CheckSquare,     color: '#60a5fa', bg: 'rgba(96,165,250,0.08)'  },
+  { id: 'tools',      label: 'Outils',      sub: 'Utilitaires',         icon: Wrench,          color: '#f472b6', bg: 'rgba(244,114,182,0.08)' },
+  { id: 'settings',   label: 'Paramètres',  sub: 'Configuration',       icon: Settings,        color: '#94a3b8', bg: 'rgba(148,163,184,0.08)' },
 ];
 
 interface Props {
@@ -66,19 +30,12 @@ interface Props {
 
 export const FullScreenMenu = ({ open, onClose, currentView, onViewChange, onLogout, userName }: Props) => {
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    const fn = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', fn);
+    return () => window.removeEventListener('keydown', fn);
   }, [onClose]);
 
-  const handleSelect = (id: string) => {
-    onViewChange(id);
-    onClose();
-  };
-
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  const dateStr = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const select = (id: string) => { onViewChange(id); onClose(); };
 
   return (
     <AnimatePresence>
@@ -87,138 +44,138 @@ export const FullScreenMenu = ({ open, onClose, currentView, onViewChange, onLog
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
-          className="fixed inset-0 z-50 flex flex-col"
-          style={{ background: 'rgba(3, 3, 7, 0.97)' }}
+          transition={{ duration: 0.2 }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 60,
+            background: 'rgba(4, 4, 8, 0.97)',
+            backdropFilter: 'blur(12px)',
+            display: 'flex', flexDirection: 'column',
+          }}
         >
-          {/* Background aurora */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Glow */}
+          <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
             <motion.div
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1.2, opacity: 0.12 }}
-              transition={{ duration: 0.8 }}
-              className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-rose-600 blur-[120px]"
+              initial={{ scale: 0.4, opacity: 0 }}
+              animate={{ scale: 1.4, opacity: 0.08 }}
+              transition={{ duration: 0.7 }}
+              style={{ position: 'absolute', top: '20%', left: '10%', width: 400, height: 400, borderRadius: '50%', background: '#f43f5e', filter: 'blur(120px)' }}
             />
             <motion.div
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 0.08 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-violet-600 blur-[120px]"
+              initial={{ scale: 0.4, opacity: 0 }}
+              animate={{ scale: 1.2, opacity: 0.06 }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              style={{ position: 'absolute', bottom: '20%', right: '10%', width: 350, height: 350, borderRadius: '50%', background: '#7c3aed', filter: 'blur(110px)' }}
             />
           </div>
 
-          {/* Header bar */}
+          {/* Header */}
           <motion.div
-            initial={{ y: -20, opacity: 0 }}
+            initial={{ y: -16, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.1, duration: 0.4 }}
-            className="relative z-10 flex items-center justify-between px-6 md:px-10 py-5 border-b border-white/[0.05]"
+            transition={{ delay: 0.08, duration: 0.35 }}
+            style={{
+              position: 'relative', zIndex: 1,
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '20px 20px 16px',
+              borderBottom: '1px solid rgba(255,255,255,0.06)',
+            }}
           >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 flex items-center justify-center">
-                <LeafLogo size={32} />
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <LeafLogo size={28} />
               <div>
-                <div className="text-white font-semibold text-sm">{userName}</div>
-                <div className="flex items-center gap-1.5 text-gray-600 text-xs">
-                  <Clock className="w-3 h-3" />
-                  {timeStr} — {dateStr}
-                </div>
+                <div style={{ color: 'white', fontWeight: 600, fontSize: 15 }}>{userName}</div>
+                <div style={{ color: '#4b5563', fontSize: 11 }}>LuminaOS v2.0.4</div>
               </div>
             </div>
-
-            <button
+            <motion.button
+              whileTap={{ scale: 0.9 }}
               onClick={onClose}
-              className="w-9 h-9 rounded-xl bg-white/5 border border-white/[0.07] flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+              style={{
+                width: 36, height: 36, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+                color: '#6b7280', cursor: 'pointer',
+              }}
             >
-              <X className="w-4 h-4" />
-            </button>
+              <X style={{ width: 16, height: 16 }} />
+            </motion.button>
           </motion.div>
 
-          {/* Navigation grid */}
-          <div className="relative z-10 flex-1 overflow-y-auto px-6 md:px-10 py-8">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.15 }}
-              className="text-[10px] text-gray-600 font-medium tracking-widest uppercase mb-5"
-            >
-              Navigation
-            </motion.div>
+          {/* Modules grid */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '20px 16px 100px', position: 'relative', zIndex: 1 }}>
+            <div style={{ fontSize: 10, color: '#4b5563', fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 14 }}>
+              Modules
+            </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-3xl">
-              {NAV_ITEMS.map((item, i) => {
-                const isActive = currentView === item.id;
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {MODULES.map((mod, i) => {
+                const isActive = currentView === mod.id;
                 return (
                   <motion.button
-                    key={item.id}
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    key={mod.id}
+                    initial={{ opacity: 0, y: 16, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{
-                      delay: 0.1 + i * 0.04,
-                      duration: 0.4,
-                      ease: [0.23, 1, 0.32, 1],
+                    transition={{ delay: 0.06 + i * 0.03, duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => select(mod.id)}
+                    style={{
+                      display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                      padding: '16px 14px', borderRadius: 18, cursor: 'pointer', textAlign: 'left',
+                      background: isActive ? mod.bg : 'rgba(255,255,255,0.025)',
+                      border: `1px solid ${isActive ? mod.color + '25' : 'rgba(255,255,255,0.06)'}`,
+                      position: 'relative', overflow: 'hidden',
+                      transition: 'background 0.2s, border-color 0.2s',
                     }}
-                    onClick={() => handleSelect(item.id)}
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.97 }}
-                    className={`relative flex flex-col items-start p-5 rounded-2xl border text-left cursor-pointer transition-all overflow-hidden group ${
-                      item.featured ? 'md:col-span-1' : ''
-                    } ${isActive
-                        ? `bg-gradient-to-br ${item.gradient} ${item.border}`
-                        : 'bg-white/[0.025] border-white/[0.06] hover:bg-white/[0.05] hover:border-white/10'
-                    }`}
                   >
-                    {/* Active indicator */}
                     {isActive && (
-                      <div className="absolute top-3 right-3 w-2 h-2 rounded-full" style={{ background: item.color, boxShadow: `0 0 8px ${item.color}` }} />
+                      <div style={{
+                        position: 'absolute', top: 10, right: 10, width: 6, height: 6, borderRadius: '50%',
+                        background: mod.color, boxShadow: `0 0 8px ${mod.color}`,
+                      }} />
                     )}
 
                     {/* Icon */}
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                      style={{ background: item.color + '18', border: `1px solid ${item.color}25` }}
-                    >
-                      <item.icon className="w-5 h-5" style={{ color: item.color }} />
+                    <div style={{
+                      width: 38, height: 38, borderRadius: 12,
+                      background: mod.color + '16',
+                      border: `1px solid ${mod.color}20`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      marginBottom: 12,
+                    }}>
+                      <mod.icon style={{ width: 18, height: 18, color: mod.color }} />
                     </div>
 
-                    {/* Text */}
-                    <div className="text-sm font-semibold text-white mb-0.5">{item.label}</div>
-                    <div className="text-xs text-gray-600 group-hover:text-gray-500 transition-colors">{item.subtitle}</div>
-
-                    {/* Arrow */}
-                    <ChevronRight
-                      className="absolute bottom-4 right-4 w-4 h-4 text-gray-700 group-hover:text-gray-500 group-hover:translate-x-0.5 transition-all"
-                    />
-
-                    {/* Featured badge */}
-                    {item.featured && (
-                      <div className="absolute top-3 left-3 px-1.5 py-0.5 rounded-md text-[9px] font-bold tracking-widest uppercase"
-                        style={{ background: item.color + '20', color: item.color }}>
-                        IA
-                      </div>
-                    )}
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'white', marginBottom: 2 }}>{mod.label}</div>
+                    <div style={{ fontSize: 11, color: '#4b5563' }}>{mod.sub}</div>
                   </motion.button>
                 );
               })}
             </div>
           </div>
 
-          {/* Footer - logout */}
+          {/* Footer */}
           <motion.div
-            initial={{ y: 20, opacity: 0 }}
+            initial={{ y: 16, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.4 }}
-            className="relative z-10 px-6 md:px-10 py-5 border-t border-white/[0.05] flex items-center justify-between"
+            transition={{ delay: 0.25, duration: 0.35 }}
+            style={{
+              position: 'relative', zIndex: 1,
+              padding: '14px 20px 20px',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+            }}
           >
-            <span className="text-gray-700 text-xs font-mono">LuminaOS v2.0.4-stable</span>
-            <button
+            <motion.button
+              whileTap={{ scale: 0.96 }}
               onClick={() => { onLogout(); onClose(); }}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-500/8 border border-rose-500/20 text-rose-400 text-sm hover:bg-rose-500/15 transition-all cursor-pointer"
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                padding: '13px', borderRadius: 16,
+                background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.15)',
+                color: '#f87171', fontSize: 14, fontWeight: 500, cursor: 'pointer',
+              }}
             >
-              <LogOut className="w-3.5 h-3.5" />
+              <LogOut style={{ width: 16, height: 16 }} />
               Déconnexion
-            </button>
+            </motion.button>
           </motion.div>
         </motion.div>
       )}

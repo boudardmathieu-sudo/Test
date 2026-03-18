@@ -23,80 +23,55 @@ import { FullScreenMenu } from "./FullScreenMenu";
 import { BottomNav } from "./BottomNav";
 import { User } from "../App";
 
-const VIEW_META: Record<string, { title: string; subtitle: string }> = {
-  dashboard:  { title: "Dashboard",        subtitle: "Aperçu de votre système" },
-  server:     { title: "Serveur & Réseau",  subtitle: "Infrastructure" },
-  home:       { title: "Maison Connectée", subtitle: "Appareils connectés" },
-  settings:   { title: "Paramètres",       subtitle: "Préférences" },
-  pomodoro:   { title: "Pomodoro",         subtitle: "Focus & concentration" },
-  calculator: { title: "Calculette",       subtitle: "Calculs rapides" },
-  habits:     { title: "Habitudes",        subtitle: "Suivi journalier" },
-  tools:      { title: "Outils",           subtitle: "Utilitaires" },
-  lumy:       { title: "Lumy",             subtitle: "IA locale · Sans cloud" },
-};
-
 const getGreeting = () => {
   const h = new Date().getHours();
-  if (h >= 5 && h < 12)  return "Bonjour";
-  if (h >= 12 && h < 18) return "Bon après-midi";
-  return "Bonsoir";
+  if (h >= 5 && h < 12)  return 'Bonjour';
+  if (h >= 12 && h < 18) return 'Bon après-midi';
+  return 'Bonsoir';
 };
 
+const SectionLabel = ({ label }: { label: string }) => (
+  <div style={{ fontSize: 11, fontWeight: 500, color: '#4b5563', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 8, marginBottom: 10 }}>
+    {label}
+  </div>
+);
+
 export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogout: () => void }) => {
-  const [currentView, setCurrentView] = useState("dashboard");
+  const [currentView, setCurrentView] = useState('dashboard');
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const meta = VIEW_META[currentView] ?? VIEW_META.dashboard;
-
-  const renderContent = () => {
+  const renderView = () => {
     switch (currentView) {
-      case "dashboard":
-        return (
-          <div className="flex flex-col gap-4">
-            <ClockWidget />
-            <WeatherWidget />
-            <GoogleSearchWidget />
-            <QuickLinksWidget currentUser={currentUser} />
-            <NewsWidget />
-            <SpotifyWidget currentUser={currentUser} />
-            <TodoWidget />
-            <NotepadWidget />
-          </div>
-        );
-      case "server":
-        return (
-          <div className="flex flex-col gap-4">
-            <SystemStatsWidget currentUser={currentUser} />
-            <NetworkMonitorWidget />
-          </div>
-        );
-      case "home":
-        return <SmartHomeWidget currentUser={currentUser} />;
-      case "settings":
-        return (
-          <div className="flex flex-col gap-4">
-            <SettingsWidget currentUser={currentUser} />
-            {currentUser.role === "admin" && <DiscordBotWidget />}
-          </div>
-        );
-      case "pomodoro":   return <PomodoroWidget />;
-      case "calculator": return <CalculatorWidget />;
-      case "habits":     return <HabitWidget />;
-      case "tools":      return <ToolsWidget />;
-      case "lumy":
-        return (
-          <div style={{ height: '100%' }}>
-            <FridayWidget userName={currentUser.username} onNavigate={setCurrentView} />
-          </div>
-        );
+      case 'dashboard': return <HomeView currentUser={currentUser} />;
+      case 'server':    return <ServerView currentUser={currentUser} />;
+      case 'home':      return <SmartHomeWidget currentUser={currentUser} />;
+      case 'settings':  return <SettingsView currentUser={currentUser} />;
+      case 'pomodoro':  return <PomodoroWidget />;
+      case 'calculator':return <CalculatorWidget />;
+      case 'habits':    return <HabitWidget />;
+      case 'tools':     return <ToolsWidget />;
+      case 'lumy':      return <FridayWidget userName={currentUser.username} onNavigate={setCurrentView} />;
       default: return null;
     }
   };
 
+  const VIEW_TITLE: Record<string, string> = {
+    dashboard: `${getGreeting()}, ${currentUser.username}`,
+    server:    'Serveur',
+    home:      'Maison',
+    settings:  'Paramètres',
+    pomodoro:  'Pomodoro',
+    calculator:'Calculette',
+    habits:    'Habitudes',
+    tools:     'Outils',
+    lumy:      'Lumy',
+  };
+
+  const isLumy = currentView === 'lumy';
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', width: '100%', overflow: 'hidden', background: '#060608' }}>
 
-      {/* Full screen navigation menu */}
       <FullScreenMenu
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
@@ -107,91 +82,108 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
       />
 
       {/* Header */}
-      <motion.header
-        initial={{ opacity: 0, y: -10 }}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
+        transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
         style={{
           flexShrink: 0,
-          padding: '20px 20px 16px',
-          borderBottom: '1px solid rgba(255,255,255,0.04)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '18px 20px 14px',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
         }}
       >
         <AnimatePresence mode="wait">
           <motion.div
             key={currentView}
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -5 }}
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 8 }}
             transition={{ duration: 0.18 }}
           >
-            <h2 style={{ fontSize: 20, fontWeight: 600, color: 'white', margin: 0, letterSpacing: '-0.3px' }}>
-              {currentView === "dashboard"
-                ? `${getGreeting()}, ${currentUser.username}`
-                : currentView === "lumy"
-                ? <><span style={{ color: '#fbbf24' }}>Lumy</span></>
-                : meta.title}
-            </h2>
-            <p style={{ fontSize: 12, color: '#4b5563', margin: '3px 0 0', lineHeight: 1 }}>
-              {currentView === "dashboard"
-                ? new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })
-                : meta.subtitle}
-            </p>
+            <div style={{ fontSize: isLumy ? 20 : 18, fontWeight: 700, color: isLumy ? '#fbbf24' : 'white', letterSpacing: '-0.3px', lineHeight: 1.2 }}>
+              {VIEW_TITLE[currentView] ?? currentView}
+            </div>
+            <div style={{ fontSize: 12, color: '#374151', marginTop: 3, lineHeight: 1 }}>
+              {currentView === 'dashboard'
+                ? new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+                : currentView === 'lumy'
+                ? 'Mémoire locale · Sans API'
+                : ''}
+            </div>
           </motion.div>
         </AnimatePresence>
 
-        {currentView !== 'lumy' && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            whileTap={{ scale: 0.92 }}
-            onClick={() => setCurrentView('lumy')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '7px 12px',
-              borderRadius: 12,
-              background: 'rgba(251,191,36,0.1)',
-              border: '1px solid rgba(251,191,36,0.2)',
-              color: '#fbbf24',
-              fontSize: 12,
-              fontWeight: 500,
-              cursor: 'pointer',
-              flexShrink: 0,
-            }}
-          >
-            <Sparkles style={{ width: 14, height: 14 }} />
-            Lumy
-          </motion.button>
-        )}
-      </motion.header>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {currentView !== 'lumy' && (
+            <motion.button
+              whileTap={{ scale: 0.92 }}
+              onClick={() => setCurrentView('lumy')}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '8px 12px', borderRadius: 12,
+                background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.18)',
+                color: '#fbbf24', fontSize: 12, fontWeight: 500, cursor: 'pointer',
+              }}
+            >
+              <Sparkles style={{ width: 13, height: 13 }} />
+              Lumy
+            </motion.button>
+          )}
+        </div>
+      </motion.div>
 
-      {/* Scrollable content area */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '20px 16px 96px' }}>
+      {/* Content */}
+      <div style={{
+        flex: 1, overflowY: 'auto', overflowX: 'hidden',
+        padding: isLumy ? 0 : '16px 16px 90px',
+      }}>
         <AnimatePresence mode="wait">
           <motion.div
             key={currentView}
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
+            style={{ height: isLumy ? '100%' : undefined }}
           >
-            {renderContent()}
+            {renderView()}
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Bottom navigation */}
-      <BottomNav
-        currentView={currentView}
-        onViewChange={setCurrentView}
-        onMenuOpen={() => setMenuOpen(true)}
-      />
+      <BottomNav currentView={currentView} onViewChange={setCurrentView} onMenuOpen={() => setMenuOpen(true)} />
     </div>
   );
 };
+
+/* ─── Sub-views ─── */
+
+const HomeView = ({ currentUser }: { currentUser: User }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <ClockWidget />
+    <WeatherWidget />
+    <GoogleSearchWidget />
+    <SpotifyWidget currentUser={currentUser} />
+    <SectionLabel label="Tâches & Notes" />
+    <TodoWidget />
+    <NotepadWidget />
+    <SectionLabel label="Liens & Actualités" />
+    <QuickLinksWidget currentUser={currentUser} />
+    <NewsWidget />
+  </div>
+);
+
+const ServerView = ({ currentUser }: { currentUser: User }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <SystemStatsWidget currentUser={currentUser} />
+    <NetworkMonitorWidget />
+  </div>
+);
+
+const SettingsView = ({ currentUser }: { currentUser: User }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <SettingsWidget currentUser={currentUser} />
+    {currentUser.role === 'admin' && <DiscordBotWidget />}
+  </div>
+);

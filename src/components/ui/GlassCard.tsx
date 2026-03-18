@@ -5,29 +5,43 @@ interface GlassCardProps {
   children: React.ReactNode;
   className?: string;
   delay?: number;
-  accent?: "rose" | "violet" | "none";
+  accent?: "rose" | "violet" | "amber" | "sky" | "none";
+  noPad?: boolean;
 }
 
-export const GlassCard = ({ children, className = "", delay = 0, accent = "none" }: GlassCardProps) => {
-  const accentBorder =
-    accent === "rose"
-      ? "border-rose-500/20"
-      : accent === "violet"
-      ? "border-violet-500/20"
-      : "border-white/[0.06]";
+export const GlassCard = ({ children, className = "", delay = 0, accent = "none", noPad = false }: GlassCardProps) => {
+  const accentMap = {
+    rose:   { border: 'rgba(244,63,94,0.18)',   top: 'rgba(244,63,94,0.3)' },
+    violet: { border: 'rgba(139,92,246,0.18)',  top: 'rgba(139,92,246,0.3)' },
+    amber:  { border: 'rgba(251,191,36,0.18)',  top: 'rgba(251,191,36,0.3)' },
+    sky:    { border: 'rgba(56,189,248,0.18)',  top: 'rgba(56,189,248,0.3)' },
+    none:   { border: 'rgba(255,255,255,0.07)', top: 'rgba(255,255,255,0.12)' },
+  };
+
+  const a = accentMap[accent];
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
-      className={`relative rounded-2xl border ${accentBorder} bg-white/[0.03] backdrop-blur-2xl overflow-hidden shadow-[0_1px_0_0_rgba(255,255,255,0.05)_inset,0_20px_40px_rgba(0,0,0,0.4)] ${className}`}
+      transition={{ delay, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+      style={{
+        position: 'relative',
+        borderRadius: 20,
+        border: `1px solid ${a.border}`,
+        background: '#0d0d12',
+        overflow: 'hidden',
+        boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset',
+      }}
+      className={className}
     >
-      {/* Top highlight line */}
-      <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      {/* Top shine */}
+      <div style={{
+        position: 'absolute', top: 0, left: 16, right: 16, height: 1,
+        background: `linear-gradient(90deg, transparent, ${a.top}, transparent)`,
+      }} />
 
-      {/* Inner content */}
-      <div className="relative z-10 p-6 h-full">
+      <div style={{ position: 'relative', zIndex: 1, padding: noPad ? 0 : '18px 16px' }}>
         {children}
       </div>
     </motion.div>
