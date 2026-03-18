@@ -5,6 +5,7 @@ import {
   Timer, Calculator, CheckSquare, Wrench,
   LogOut, X, Sparkles, ChevronRight, Clock
 } from 'lucide-react';
+import { LeafLogo } from './ui/LeafLogo';
 
 const NAV_ITEMS = [
   {
@@ -114,8 +115,8 @@ export const FullScreenMenu = ({ open, onClose, currentView, onViewChange, onLog
             className="relative z-10 flex items-center justify-between px-6 md:px-10 py-5 border-b border-white/[0.05]"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-[0_0_20px_rgba(244,63,94,0.3)]">
-                <span className="text-xs font-bold text-white">LOS</span>
+              <div className="w-9 h-9 flex items-center justify-center">
+                <LeafLogo size={32} />
               </div>
               <div>
                 <div className="text-white font-semibold text-sm">{userName}</div>

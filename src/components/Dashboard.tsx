@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sparkles, Menu } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { ClockWidget } from "./widgets/ClockWidget";
 import { WeatherWidget } from "./widgets/WeatherWidget";
 import { SystemStatsWidget } from "./widgets/SystemStatsWidget";
@@ -21,6 +21,7 @@ import { ToolsWidget } from "./widgets/ToolsWidget";
 import { FridayWidget } from "./widgets/FridayWidget";
 import { FullScreenMenu } from "./FullScreenMenu";
 import { Sidebar } from "./Sidebar";
+import { BottomNav } from "./BottomNav";
 import { User } from "../App";
 
 const VIEW_META: Record<string, { title: string; subtitle: string }> = {
@@ -83,10 +84,30 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
             {currentUser.role === "admin" && <DiscordBotWidget />}
           </div>
         );
-      case "pomodoro":   return <div className="flex justify-center"><PomodoroWidget /></div>;
-      case "calculator": return <div className="flex justify-center"><CalculatorWidget /></div>;
-      case "habits":     return <div className="flex justify-center"><HabitWidget /></div>;
-      case "tools":      return <div className="flex justify-center"><ToolsWidget /></div>;
+      case "pomodoro":
+        return (
+          <div className="flex justify-center">
+            <PomodoroWidget />
+          </div>
+        );
+      case "calculator":
+        return (
+          <div className="flex justify-center">
+            <CalculatorWidget />
+          </div>
+        );
+      case "habits":
+        return (
+          <div className="w-full max-w-2xl mx-auto">
+            <HabitWidget />
+          </div>
+        );
+      case "tools":
+        return (
+          <div className="w-full">
+            <ToolsWidget />
+          </div>
+        );
       case "lumy":
         return (
           <div className="h-full">
@@ -98,7 +119,7 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100%', overflow: 'hidden', background: '#060608' }}>
+    <div style={{ display: 'flex', height: '100dvh', width: '100%', overflow: 'hidden', background: '#060608' }}>
 
       {/* Full screen menu overlay */}
       <FullScreenMenu
@@ -127,16 +148,8 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-          className="flex-shrink-0 px-6 pt-5 pb-4 border-b border-white/[0.04] flex items-center gap-4"
+          className="flex-shrink-0 px-4 md:px-6 pt-4 md:pt-5 pb-3 md:pb-4 border-b border-white/[0.04] flex items-center gap-3"
         >
-          {/* Mobile menu button */}
-          <button
-            className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.07] text-gray-400 hover:text-white hover:bg-white/[0.07] transition-all cursor-pointer flex-shrink-0"
-            onClick={() => setMenuOpen(true)}
-          >
-            <Menu className="w-4 h-4" />
-          </button>
-
           <div className="flex-1 min-w-0">
             <AnimatePresence mode="wait">
               <motion.div
@@ -146,14 +159,14 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.2 }}
               >
-                <h2 className="text-xl font-semibold text-white tracking-tight truncate">
+                <h2 className="text-lg md:text-xl font-semibold text-white tracking-tight truncate">
                   {currentView === "dashboard"
                     ? `${getGreeting()}, ${currentUser.username}`
                     : currentView === "lumy"
-                    ? <><span className="text-amber-400">Lumy</span><span className="text-gray-700 font-light text-base ml-2">— IA Personnelle</span></>
+                    ? <><span className="text-amber-400">Lumy</span><span className="text-gray-700 font-light text-sm md:text-base ml-2">— IA Personnelle</span></>
                     : meta.title}
                 </h2>
-                <p className="text-gray-600 text-sm mt-0.5 truncate">
+                <p className="text-gray-600 text-xs md:text-sm mt-0.5 truncate">
                   {currentView === "dashboard"
                     ? new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })
                     : currentView === "lumy"
@@ -170,7 +183,7 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               onClick={() => setCurrentView('lumy')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium hover:bg-amber-500/15 transition-all cursor-pointer flex-shrink-0"
+              className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium hover:bg-amber-500/15 transition-all cursor-pointer flex-shrink-0"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Lumy</span>
@@ -179,7 +192,10 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
         </motion.header>
 
         {/* Scrollable content */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '24px', paddingBottom: '80px' }}>
+        <div
+          style={{ flex: 1, overflowY: 'auto', padding: '16px', paddingBottom: '80px' }}
+          className="md:p-6 md:pb-8"
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={currentView}
@@ -192,28 +208,14 @@ export const Dashboard = ({ currentUser, onLogout }: { currentUser: User; onLogo
             </motion.div>
           </AnimatePresence>
         </div>
-
-        {/* Floating menu button — mobile only */}
-        <div className="md:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-40">
-          <motion.button
-            onClick={() => setMenuOpen(true)}
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.94 }}
-            className="relative flex items-center justify-center cursor-pointer"
-          >
-            <motion.div
-              animate={{ scale: [1, 1.35, 1], opacity: [0.35, 0, 0.35] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute w-14 h-14 rounded-full bg-rose-500/30"
-            />
-            <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center border-2 border-white/15 shadow-[0_0_30px_rgba(244,63,94,0.4)]">
-              <span className="text-sm font-bold text-white tracking-tight">
-                L<span className="font-light opacity-75">OS</span>
-              </span>
-            </div>
-          </motion.button>
-        </div>
       </div>
+
+      {/* Mobile bottom nav */}
+      <BottomNav
+        currentView={currentView}
+        onViewChange={setCurrentView}
+        onMenuOpen={() => setMenuOpen(true)}
+      />
     </div>
   );
 };

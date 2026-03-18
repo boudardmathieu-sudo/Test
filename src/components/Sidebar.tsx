@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Settings, Server, Home, LogOut,
   Timer, Calculator, CheckSquare, Wrench, Sparkles
 } from 'lucide-react';
-import logo from '../assets/logo.png';
+import { LeafLogo } from './ui/LeafLogo';
 
 const navItems = [
   { id: 'dashboard',  label: 'Dashboard',   icon: LayoutDashboard, color: '#f43f5e' },
@@ -29,7 +29,7 @@ export const Sidebar = ({ currentView, onViewChange, onLogout }: SidebarProps) =
     <div className="flex flex-col w-56 h-full bg-[#08080c]/95 border-r border-white/[0.05] backdrop-blur-2xl z-50 py-5 px-3">
       {/* Brand */}
       <div className="flex items-center gap-3 px-2 mb-7">
-        <img src={logo} alt="LuminaOS" className="w-8 h-8 object-contain" />
+        <LeafLogo size={32} />
         <div>
           <span className="text-sm font-semibold text-white tracking-tight">
             Lumina<span className="text-rose-400 font-light">OS</span>
